@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev:ui": "npm run dev --prefix src/ui",
-    "dev:api": "npm run dev --prefix src/api",
-    "build:ui": "npm run build --prefix src/ui",
-    "build:api": "npm run build --prefix src/api",
-    "install:all": "npm install --prefix src/ui && npm install --prefix src/api"
+    "dev:ui": "yarn --cwd src/ui dev",
+    "dev:api": "yarn --cwd src/api dev",
+    "build:ui": "yarn --cwd src/ui build",
+    "build:api": "yarn --cwd src/api build",
+    "install:all": "yarn --cwd src/ui install && yarn --cwd src/api install"
   }
 }
