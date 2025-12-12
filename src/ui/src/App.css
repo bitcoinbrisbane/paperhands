@@ -1,12 +1,14 @@
-.app {
-  padding: 2rem;
+.landing-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.login-panel {
+  width: 100%;
+  max-width: 350px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.api-status {
-  color: #888;
+.login-panel .card-title {
+  font-weight: 600;
 }
