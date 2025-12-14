@@ -1,23 +1,34 @@
 import { useState, FormEvent } from "react";
 import { Card, Form, Button, Alert, Spinner } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
 export function LoginPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { login, loginWithApple, loginWithPasskey, loading, error } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await login({ email, password });
+    const result = await login({ email, password });
+    if (result) {
+      navigate("/dashboard");
+    }
   };
 
   const handleAppleLogin = async () => {
-    await loginWithApple();
+    const result = await loginWithApple();
+    if (result) {
+      navigate("/dashboard");
+    }
   };
 
   const handlePasskeyLogin = async () => {
-    await loginWithPasskey();
+    const result = await loginWithPasskey();
+    if (result) {
+      navigate("/dashboard");
+    }
   };
 
   return (
