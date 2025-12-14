@@ -1,12 +1,12 @@
 import { Container, Card } from "react-bootstrap";
 
-export function Dashboard() {
+export function Transactions() {
   return (
     <Container className="py-4">
-      <h2>Dashboard</h2>
+      <h2>Transactions</h2>
       <Card>
         <Card.Body>
-          <Card.Text>Welcome! You are logged in.</Card.Text>
+          <Card.Text className="text-muted">No transactions found.</Card.Text>
         </Card.Body>
       </Card>
     </Container>
