@@ -1,0 +1,24 @@
+{
+  "name": "paperhands-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.1",
+    "eslint": "^9.15.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.15.0"
+  }
+}

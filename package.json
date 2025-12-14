@@ -1,0 +1,12 @@
+{
+  "name": "paperhands",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:ui": "yarn --cwd src/ui dev",
+    "dev:api": "yarn --cwd src/api dev",
+    "build:ui": "yarn --cwd src/ui build",
+    "build:api": "yarn --cwd src/api build",
+    "install:all": "yarn --cwd src/ui install && yarn --cwd src/api install"
+  }
+}
