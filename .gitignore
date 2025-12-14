@@ -290,6 +290,10 @@ FakesAssemblies/
 .ntvs_analysis.dat
 node_modules/
 
+# Build outputs
+dist/
+tsconfig.tsbuildinfo
+
 # Visual Studio 6 build log
 *.plg
 
