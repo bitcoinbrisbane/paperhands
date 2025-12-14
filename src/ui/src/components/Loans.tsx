@@ -5,8 +5,8 @@ import {
   LoanTabs,
   LoanPromo,
   LoanCalculator,
-  LoanStatus,
 } from "./loans";
+import type { LoanStatus } from "./loans";
 
 export function Loans() {
   const [activeTab, setActiveTab] = useState<LoanStatus>("active");
