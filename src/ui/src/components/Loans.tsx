@@ -61,7 +61,7 @@ export function Loans() {
         <Card.Body>
           <h5 className="mb-3">Loan calculator</h5>
           <p className="text-muted mb-4">
-            BTC-backed loans have a 12-month term and are denominated in US dollars.
+            BTC-backed loans have a 12-month term and are denominated in Australian dollars.
           </p>
           <Row>
             <Col md={6}>
@@ -73,7 +73,7 @@ export function Loans() {
                     value={loanAmount}
                     onChange={(e) => setLoanAmount(Number(e.target.value))}
                   />
-                  <InputGroup.Text>USD</InputGroup.Text>
+                  <InputGroup.Text>AUD</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
               <Form.Group className="mb-3">
@@ -88,7 +88,7 @@ export function Loans() {
               <div className="p-3 bg-light rounded">
                 <div className="mb-3">
                   <div className="text-muted small">Loan amount</div>
-                  <div className="h4">{loanAmount.toFixed(2)} USD</div>
+                  <div className="h4">{loanAmount.toFixed(2)} AUD</div>
                 </div>
                 <div className="mb-3">
                   <div className="text-muted small">Collateral</div>
