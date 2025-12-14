@@ -12,3 +12,61 @@
 .login-panel .card-title {
   font-weight: 600;
 }
+
+/* Loan components */
+.bitcoin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #f7931a;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.dollar-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background-color: #d4edda;
+  color: #28a745;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.promo-icon {
+  display: flex;
+  justify-content: center;
+}
+
+.calculator-results {
+  height: 100%;
+}
+
+.calculator-results .h4 {
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link {
+  color: #495057;
+  border: none;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+  color: #000;
+  border-color: transparent;
+  border-bottom: 2px solid #000;
+  background-color: transparent;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: transparent;
+  border-bottom: 2px solid #dee2e6;
+}

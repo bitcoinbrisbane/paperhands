@@ -1,14 +1,27 @@
-import { Container, Card } from "react-bootstrap";
+import { useState } from "react";
+import { Container } from "react-bootstrap";
+import {
+  LoanHeader,
+  LoanTabs,
+  LoanPromo,
+  LoanCalculator,
+  LoanStatus,
+} from "./loans";
 
 export function Loans() {
+  const [activeTab, setActiveTab] = useState<LoanStatus>("active");
+
+  const handleApply = () => {
+    // TODO: Implement apply for loan
+    console.log("Apply for loan clicked");
+  };
+
   return (
     <Container className="py-4">
-      <h2>Loans</h2>
-      <Card>
-        <Card.Body>
-          <Card.Text className="text-muted">No loans found.</Card.Text>
-        </Card.Body>
-      </Card>
+      <LoanHeader onApply={handleApply} />
+      <LoanTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <LoanPromo />
+      <LoanCalculator />
     </Container>
   );
 }
