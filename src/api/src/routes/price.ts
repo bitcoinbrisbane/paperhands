@@ -27,7 +27,7 @@ router.get("/btc-aud", async (_req: Request, res: Response) => {
       throw new Error(`CoinGecko API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as { bitcoin: { aud: number } };
     const price = data.bitcoin.aud;
 
     // Update cache

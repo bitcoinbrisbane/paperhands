@@ -33,8 +33,8 @@ export function LoanCalculator() {
     return value.toFixed(8);
   };
 
-  const formatUsd = (value: number) => {
-    return value.toLocaleString("en-US", {
+  const formatAud = (value: number) => {
+    return value.toLocaleString("en-AU", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
@@ -45,8 +45,7 @@ export function LoanCalculator() {
       <Card.Body>
         <h5 className="mb-3">Loan calculator</h5>
         <p className="text-muted mb-4">
-          BTC-backed loans have a 12-month term and are denominated in US dollars,
-          but can be funded in your preferred currency, where applicable.
+          BTC-backed loans have a 12-month term and are denominated in Australian dollars.
         </p>
 
         <Row>
@@ -60,7 +59,7 @@ export function LoanCalculator() {
                   onChange={(e) => setLoanAmount(Number(e.target.value))}
                   min={100}
                 />
-                <InputGroup.Text>USD 🇺🇸</InputGroup.Text>
+                <InputGroup.Text>AUD</InputGroup.Text>
               </InputGroup>
             </Form.Group>
 
@@ -70,9 +69,7 @@ export function LoanCalculator() {
                 value={fundedIn}
                 onChange={(e) => setFundedIn(e.target.value)}
               >
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
+                <option value="AUD">AUD</option>
               </Form.Select>
             </Form.Group>
 
@@ -101,22 +98,31 @@ export function LoanCalculator() {
             <div className="calculator-results p-3 bg-light rounded">
               <div className="mb-4">
                 <div className="text-muted small">Loan amount</div>
-                <div className="h4 mb-0">{formatUsd(loanAmount)} USD</div>
+                <div className="h4 mb-0">{formatAud(loanAmount)} AUD</div>
                 <div className="text-muted small">Funded in {fundedIn}.</div>
               </div>
 
               <div className="mb-4">
                 <div className="text-muted small">Collateral</div>
-                <div className="h4 mb-0">{formatBtc(collateral)} BTC</div>
+                <div className="h4 mb-0">
+                  {priceLoading ? <Spinner size="sm" /> : `${formatBtc(collateral)} BTC`}
+                </div>
                 <div className="text-muted small">Amount required once your loan is approved.</div>
               </div>
 
-              <div>
+              <div className="mb-4">
                 <div className="text-muted small">Finance charge</div>
                 <div className="h4 mb-0">{apr.toFixed(2)}% APR</div>
                 <div className="text-muted small">
                   {(ANNUAL_INTEREST_RATE * 100).toFixed(2)}% annual interest rate + {(ADMIN_FEE_RATE * 100).toFixed(2)}% administration fee.
-                  Minimum administration fee is {MIN_ADMIN_FEE} USD.
+                  Minimum administration fee is {MIN_ADMIN_FEE} AUD.
+                </div>
+              </div>
+
+              <div>
+                <div className="text-muted small">BTC/AUD Rate</div>
+                <div className="h5 mb-0">
+                  {priceLoading ? <Spinner size="sm" /> : `$${btcPrice?.toLocaleString()} AUD`}
                 </div>
               </div>
             </div>
