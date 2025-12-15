@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { findUserByEmail, findCustomerByUserId, verifyPassword } from "../services/userService.js";
 
 const router = Router();
 
@@ -7,19 +8,50 @@ interface LoginRequest {
   password: string;
 }
 
-router.post("/login", (req: Request<object, object, LoginRequest>, res: Response) => {
-  const { email, password: _password } = req.body;
+router.post("/login", async (req: Request<object, object, LoginRequest>, res: Response) => {
+  const { email, password } = req.body;
 
-  // TODO: Implement actual authentication
-  console.log("Login attempt:", { email, password: "***" });
+  if (!email || !password) {
+    res.status(400).json({ error: "Email and password are required" });
+    return;
+  }
 
-  res.json({
-    token: "stub-jwt-token",
-    user: {
-      id: "stub-user-id",
-      email: email,
-    },
-  });
+  try {
+    console.log("Login attempt:", { email, password: "***" });
+
+    // Find user by email
+    const user = await findUserByEmail(email);
+    if (!user) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
+    }
+
+    // Verify password
+    const isValid = await verifyPassword(password, user.password_hash);
+    if (!isValid) {
+      res.status(401).json({ error: "Invalid email or password" });
+      return;
+    }
+
+    // Get customer info
+    const customer = await findCustomerByUserId(user.id);
+
+    console.log("Login successful:", { userId: user.id, email: user.email });
+
+    res.json({
+      token: `jwt-token-${user.id}`, // TODO: Generate real JWT
+      user: {
+        id: user.id,
+        email: user.email,
+        customerId: customer?.id,
+        firstName: customer?.first_name,
+        lastName: customer?.last_name,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.post("/apple", (_req: Request, res: Response) => {
