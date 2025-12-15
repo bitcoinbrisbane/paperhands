@@ -36,12 +36,15 @@ CREATE TABLE IF NOT EXISTS loans (
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 -- Insert a test user (password is 'password123' hashed with bcrypt)
--- $2b$10$rQZ8K.5K5K5K5K5K5K5K5OeY7Y7Y7Y7Y7Y7Y7Y7Y7Y7Y7Y7Y7Y7Y7
 INSERT INTO users (email, password_hash)
-VALUES ('test@example.com', '$2b$10$EpRnTzVlqHNP0.fUbXUwSOyuiXe/QLSUG6xNekdHgTGmrpHEfIoxm')
+VALUES ('test@example.com', '$2b$10$K8ik9pYikgXXHy7mQMrRDu2n36Z.S2TwfheTD5QTi1rof91AnHiZK')
 ON CONFLICT (email) DO NOTHING;
 
--- Insert test customer
-INSERT INTO customers (user_id, first_name, last_name)
-SELECT id, 'Test', 'User' FROM users WHERE email = 'test@example.com'
-ON CONFLICT DO NOTHING;
+-- Insert test customer (only if not exists)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM customers c JOIN users u ON c.user_id = u.id WHERE u.email = 'test@example.com') THEN
+        INSERT INTO customers (user_id, first_name, last_name)
+        SELECT id, 'Test', 'User' FROM users WHERE email = 'test@example.com';
+    END IF;
+END $$;
