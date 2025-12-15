@@ -1,6 +1,32 @@
-import { Container, Card, Row, Col, Button } from "react-bootstrap";
+import { useState } from "react";
+import { Container, Card, Row, Col, Button, Modal, Spinner } from "react-bootstrap";
+import { QRCodeSVG } from "qrcode.react";
+import api from "../services/api";
 
 export function Transactions() {
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [depositAddress, setDepositAddress] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleDeposit = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api.post("/bitcoin/address", {
+        customerId: 1,
+        loanId: 0,
+      });
+      setDepositAddress(response.data.address);
+      setShowDepositModal(true);
+    } catch (err) {
+      setError("Failed to generate deposit address");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Container className="py-4">
       {/* Header */}
@@ -30,15 +56,15 @@ export function Transactions() {
             </Col>
           </Row>
           <div className="d-flex gap-3">
-            <Button variant="dark">
-              <span className="me-2">↘</span>
-              Deposit
+            <Button variant="warning" onClick={handleDeposit} disabled={loading}>
+              {loading ? <Spinner size="sm" /> : <><span className="me-2">↘</span>Deposit BTC</>}
             </Button>
             <Button variant="outline-dark">
               <span className="me-2">↗</span>
               Withdraw
             </Button>
           </div>
+          {error && <div className="text-danger mt-2">{error}</div>}
         </Card.Body>
       </Card>
 
@@ -61,6 +87,37 @@ export function Transactions() {
           </div>
         </Card.Body>
       </Card>
+
+      {/* Deposit Modal */}
+      <Modal show={showDepositModal} onHide={() => setShowDepositModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Deposit BTC</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          <p className="text-muted mb-3">
+            Send BTC to the following address:
+          </p>
+          {depositAddress && (
+            <div className="mb-3">
+              <QRCodeSVG
+                value={`bitcoin:${depositAddress}`}
+                size={200}
+                level="M"
+              />
+            </div>
+          )}
+          <div className="bg-light p-3 rounded">
+            <code className="text-break" style={{ fontSize: "0.85rem" }}>
+              {depositAddress}
+            </code>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDepositModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }

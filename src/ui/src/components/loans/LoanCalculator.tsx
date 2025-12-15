@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Card, Form, Row, Col, InputGroup } from "react-bootstrap";
+import { Card, Form, Row, Col, InputGroup, Spinner } from "react-bootstrap";
+import { useBtcPrice } from "../../hooks/useBtcPrice";
 
-const BTC_PRICE_USD = 45000; // Mock BTC price
 const LTV_RATIO = 0.5; // 50% loan-to-value
 const ANNUAL_INTEREST_RATE = 0.099; // 9.90%
 const ADMIN_FEE_RATE = 0.02; // 2.00%
@@ -9,21 +9,25 @@ const MIN_ADMIN_FEE = 25;
 
 export function LoanCalculator() {
   const [loanAmount, setLoanAmount] = useState(500);
-  const [fundedIn, setFundedIn] = useState("USD");
+  const [fundedIn, setFundedIn] = useState("AUD");
 
   const [collateral, setCollateral] = useState(0);
   const [apr, setApr] = useState(0);
 
+  const { price: btcPrice, loading: priceLoading } = useBtcPrice();
+
   useEffect(() => {
     // Calculate required collateral
-    const collateralUsd = loanAmount / LTV_RATIO;
-    const collateralBtc = collateralUsd / BTC_PRICE_USD;
-    setCollateral(collateralBtc);
+    if (btcPrice) {
+      const collateralAud = loanAmount / LTV_RATIO;
+      const collateralBtc = collateralAud / btcPrice;
+      setCollateral(collateralBtc);
+    }
 
     // Calculate APR (interest + admin fee)
     const totalRate = (ANNUAL_INTEREST_RATE + ADMIN_FEE_RATE) * 100;
     setApr(totalRate);
-  }, [loanAmount]);
+  }, [loanAmount, btcPrice]);
 
   const formatBtc = (value: number) => {
     return value.toFixed(8);

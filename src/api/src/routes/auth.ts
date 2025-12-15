@@ -8,7 +8,7 @@ interface LoginRequest {
 }
 
 router.post("/login", (req: Request<object, object, LoginRequest>, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password: _password } = req.body;
 
   // TODO: Implement actual authentication
   console.log("Login attempt:", { email, password: "***" });
