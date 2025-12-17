@@ -1,31 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Container, Card, Nav, Button, Form, Row, Col, InputGroup, Modal, Spinner } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import { useBtcPrice } from "../hooks/useBtcPrice";
+import { LoanApplicationModal } from "./loans/LoanApplicationModal";
+import { LoanList } from "./loans/LoanList";
+import { Loan } from "../types/loan";
 
 type LoanStatus = "active" | "pending" | "inactive";
 const LTV_RATIO = 0.5; // 50% loan-to-value
 
 export function Loans() {
-  const [activeTab, setActiveTab] = useState<LoanStatus>("active");
+  const [activeTab, setActiveTab] = useState<LoanStatus>("pending");
   const [loanAmount, setLoanAmount] = useState(500);
   const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [depositAddress, setDepositAddress] = useState<string | null>(null);
+  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [loans, setLoans] = useState<Loan[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loansLoading, setLoansLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { price: btcPrice, loading: priceLoading } = useBtcPrice();
 
   const collateral = btcPrice ? (loanAmount / LTV_RATIO) / btcPrice : 0;
 
-  const handleDeposit = async () => {
+  useEffect(() => {
+    fetchLoans();
+  }, [activeTab]);
+
+  const fetchLoans = async () => {
+    setLoansLoading(true);
+    try {
+      const response = await api.get(`/loans?customerId=1&status=${activeTab}`);
+      setLoans(response.data);
+    } catch (err) {
+      console.error("Error fetching loans:", err);
+    } finally {
+      setLoansLoading(false);
+    }
+  };
+
+  const handleDeposit = async (loan: Loan) => {
     setLoading(true);
     setError(null);
+    setSelectedLoan(loan);
     try {
       const response = await api.post("/bitcoin/address", {
-        customerId: 1,
-        loanId: 0,
+        customerId: loan.customerId,
+        loanId: loan.id,
       });
       setDepositAddress(response.data.address);
       setShowDepositModal(true);
@@ -47,19 +71,19 @@ export function Loans() {
           </div>
           <h4 className="mb-0">BTC-backed loans</h4>
         </div>
-        <Button variant="dark">Apply for a loan</Button>
+        <Button variant="dark" onClick={() => setShowApplicationModal(true)}>Apply for a loan</Button>
       </div>
 
       {/* Tabs */}
       <Nav variant="tabs" className="mb-4">
         <Nav.Item>
-          <Nav.Link active={activeTab === "active"} onClick={() => setActiveTab("active")}>
-            Active
+          <Nav.Link active={activeTab === "pending"} onClick={() => setActiveTab("pending")}>
+            Pending
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link active={activeTab === "pending"} onClick={() => setActiveTab("pending")}>
-            Pending
+          <Nav.Link active={activeTab === "active"} onClick={() => setActiveTab("active")}>
+            Active
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
@@ -68,6 +92,9 @@ export function Loans() {
           </Nav.Link>
         </Nav.Item>
       </Nav>
+
+      {/* Loans List */}
+      <LoanList loans={loans} loading={loansLoading} onDepositClick={handleDeposit} />
 
       {/* Promo */}
       <Card className="text-center mb-4">
@@ -149,19 +176,40 @@ export function Loans() {
         </Card.Body>
       </Card>
 
+      {/* Loan Application Modal */}
+      <LoanApplicationModal
+        show={showApplicationModal}
+        onHide={() => setShowApplicationModal(false)}
+        onSuccess={() => {
+          console.log("Loan application submitted successfully");
+          setActiveTab("pending");
+          fetchLoans();
+        }}
+      />
+
       {/* Deposit Modal */}
       <Modal show={showDepositModal} onHide={() => setShowDepositModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Deposit BTC</Modal.Title>
         </Modal.Header>
         <Modal.Body className="text-center">
-          <p className="text-muted mb-3">
-            Send {collateral.toFixed(8)} BTC to the following address:
-          </p>
-          {depositAddress && (
+          {selectedLoan && (
+            <>
+              <div className="mb-3">
+                <h6>Loan #{selectedLoan.id}</h6>
+                <p className="text-muted mb-0">
+                  Amount: ${selectedLoan.amountAud.toLocaleString()} AUD
+                </p>
+              </div>
+              <p className="text-muted mb-3">
+                Send {selectedLoan.collateralBtc.toFixed(8)} BTC to the following address:
+              </p>
+            </>
+          )}
+          {depositAddress && selectedLoan && (
             <div className="mb-3">
               <QRCodeSVG
-                value={`bitcoin:${depositAddress}?amount=${collateral.toFixed(8)}`}
+                value={`bitcoin:${depositAddress}?amount=${selectedLoan.collateralBtc.toFixed(8)}`}
                 size={200}
                 level="M"
               />
@@ -171,6 +219,11 @@ export function Loans() {
             <code className="text-break" style={{ fontSize: "0.85rem" }}>
               {depositAddress}
             </code>
+          </div>
+          <div className="alert alert-info mt-3 mb-0 text-start">
+            <small>
+              <strong>Note:</strong> Once you deposit the BTC, your loan will be processed and funds will be transferred to your account.
+            </small>
           </div>
         </Modal.Body>
         <Modal.Footer>

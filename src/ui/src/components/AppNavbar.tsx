@@ -1,4 +1,4 @@
-import { Navbar, Nav, Container } from "react-bootstrap";
+import { Navbar, Nav, Container, NavDropdown } from "react-bootstrap";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
@@ -26,13 +26,26 @@ export function AppNavbar() {
             >
               Loans
             </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/transactions"
-              active={location.pathname === "/transactions"}
+            <NavDropdown
+              title="Transactions"
+              id="transactions-dropdown"
+              active={location.pathname.startsWith("/transactions")}
             >
-              Transactions
-            </Nav.Link>
+              <NavDropdown.Item
+                as={Link}
+                to="/transactions/bitcoin"
+                active={location.pathname === "/transactions/bitcoin"}
+              >
+                Bitcoin
+              </NavDropdown.Item>
+              <NavDropdown.Item
+                as={Link}
+                to="/transactions/aud"
+                active={location.pathname === "/transactions/aud"}
+              >
+                AUD
+              </NavDropdown.Item>
+            </NavDropdown>
           </Nav>
           <Nav>
             <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
