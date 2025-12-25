@@ -32,8 +32,28 @@ CREATE TABLE IF NOT EXISTS loans (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create disbursements table
+CREATE TABLE IF NOT EXISTS disbursements (
+    id SERIAL PRIMARY KEY,
+    loan_id INTEGER REFERENCES loans(id) ON DELETE CASCADE,
+    customer_id INTEGER REFERENCES customers(id) ON DELETE CASCADE,
+    amount_aud DECIMAL(18, 2) NOT NULL,
+    method VARCHAR(50) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    recipient_address VARCHAR(255) NOT NULL,
+    tx_hash VARCHAR(255),
+    error_message TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create index on email for faster lookups
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Create indexes for disbursements
+CREATE INDEX IF NOT EXISTS idx_disbursements_loan_id ON disbursements(loan_id);
+CREATE INDEX IF NOT EXISTS idx_disbursements_customer_id ON disbursements(customer_id);
+CREATE INDEX IF NOT EXISTS idx_disbursements_status ON disbursements(status);
 
 -- Insert a test user (password is 'password123' hashed with bcrypt)
 INSERT INTO users (email, password_hash)
