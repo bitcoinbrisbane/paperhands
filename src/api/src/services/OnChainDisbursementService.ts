@@ -1,24 +1,16 @@
 /**
- * Balance information
- */
-export interface Balance {
-  availableBalance: number;
-  pendingBalance: number;
-  totalBalance: number;
-}
-
-/**
  * OnChainDisbursementService - Handles AUD disbursement via blockchain
  * (e.g., AUDC stablecoin on Ethereum or other blockchains)
  */
 export class OnChainDisbursementService {
-  private rpcUrl: string;
-  private contractAddress: string;
-  private privateKey: string;
+  private readonly rpcUrl: string;
+  private readonly contractAddress: string;
+  private readonly privateKey: string;
 
   constructor(rpcUrl?: string, contractAddress?: string, privateKey?: string) {
     this.rpcUrl = rpcUrl || process.env.BLOCKCHAIN_RPC_URL || "";
-    this.contractAddress = contractAddress || process.env.AUDC_CONTRACT_ADDRESS || "";
+    this.contractAddress =
+      contractAddress || process.env.AUDC_CONTRACT_ADDRESS || "";
     this.privateKey = privateKey || process.env.DISBURSEMENT_PRIVATE_KEY || "";
   }
 
@@ -30,7 +22,7 @@ export class OnChainDisbursementService {
    */
   async send(amountAud: number, recipientAddress: string): Promise<string> {
     console.log(
-      `[OnChain] Sending ${amountAud} AUD to ${recipientAddress} via contract ${this.contractAddress}`
+      `[OnChain] Sending ${amountAud} AUD to ${recipientAddress} via contract ${this.contractAddress}`,
     );
 
     // TODO: Implement actual blockchain transaction
@@ -54,7 +46,9 @@ export class OnChainDisbursementService {
    * @returns Balance information in AUD
    */
   async balance(): Promise<Balance> {
-    console.log(`[OnChain] Fetching balance from contract ${this.contractAddress}`);
+    console.log(
+      `[OnChain] Fetching balance from contract ${this.contractAddress}`,
+    );
 
     // TODO: Implement actual blockchain balance check
     // Example implementation:
