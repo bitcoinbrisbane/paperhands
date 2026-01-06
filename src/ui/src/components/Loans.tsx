@@ -141,10 +141,10 @@ export function Loans() {
               <Button
                 variant="warning"
                 className="w-100 mt-2"
-                onClick={handleDeposit}
+                onClick={() => setShowApplicationModal(true)}
                 disabled={loading}
               >
-                {loading ? <Spinner size="sm" /> : "Deposit BTC"}
+                {loading ? <Spinner size="sm" /> : "Apply for Loan"}
               </Button>
               {error && <div className="text-danger mt-2">{error}</div>}
             </Col>

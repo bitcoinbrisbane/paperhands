@@ -36,7 +36,7 @@ export function TransactionsAUD() {
   const [txLoading, setTxLoading] = useState(false);
   const [txError, setTxError] = useState<string | null>(null);
 
-  const fetchAddressData = useCallback(async (address: string) => {
+  const fetchAddressData = useCallback(async (_address: string) => {
     setTxLoading(true);
     setTxError(null);
     try {
@@ -104,9 +104,6 @@ export function TransactionsAUD() {
     return `${txid.slice(0, 8)}...${txid.slice(-8)}`;
   };
 
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
 
   return (
     <Container className="py-4">
