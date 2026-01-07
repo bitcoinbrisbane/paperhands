@@ -1,11 +1,4 @@
-/**
- * Balance information
- */
-export interface Balance {
-  availableBalance: number;
-  pendingBalance: number;
-  totalBalance: number;
-}
+import type { Balance } from "./types.js";
 
 /**
  * ApiDisbursementService - Handles AUD disbursement via payment APIs

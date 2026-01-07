@@ -1,3 +1,5 @@
+import { Balance } from "./types.js";
+
 /**
  * OnChainDisbursementService - Handles AUD disbursement via blockchain
  * (e.g., AUDC stablecoin on Ethereum or other blockchains)

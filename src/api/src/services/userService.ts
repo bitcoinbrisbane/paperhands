@@ -1,23 +1,8 @@
 import pool from "../db/index.js";
 import bcrypt from "bcrypt";
+import type { User, Customer } from "./types.js";
 
-export interface User {
-  id: number;
-  email: string;
-  password_hash: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface Customer {
-  id: number;
-  user_id: number;
-  first_name: string | null;
-  last_name: string | null;
-  phone: string | null;
-  created_at: Date;
-  updated_at: Date;
-}
+export type { User, Customer };
 
 export async function findUserByEmail(email: string): Promise<User | null> {
   const result = await pool.query<User>(
