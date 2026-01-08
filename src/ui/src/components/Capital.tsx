@@ -164,10 +164,12 @@ export function Capital() {
 
   return (
     <Container className="py-4">
-      <h2>Supply Capital</h2>
-      <p className="text-muted mb-4">
-        Supply private capital in AAUD, USDC, or USDT on Ethereum
-      </p>
+      <div className="mb-4">
+        <h4 className="mb-2">Supply Capital</h4>
+        <p className="text-muted mb-0">
+          Supply stablecoins (AAUD, USDC, or USDT) to earn interest by lending to BTC-backed loan borrowers
+        </p>
+      </div>
 
       {error && <Alert variant="danger" dismissible onClose={() => setError("")}>{error}</Alert>}
       {success && <Alert variant="success" dismissible onClose={() => setSuccess("")}>{success}</Alert>}
