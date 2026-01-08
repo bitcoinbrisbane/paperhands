@@ -94,7 +94,9 @@ export function Loans() {
       </Nav>
 
       {/* Loans List */}
-      <LoanList loans={loans} loading={loansLoading} onDepositClick={handleDeposit} />
+      <div className="mb-4">
+        <LoanList loans={loans} loading={loansLoading} onDepositClick={handleDeposit} />
+      </div>
 
       {/* Promo */}
       <Card className="text-center mb-4">

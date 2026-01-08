@@ -8,6 +8,7 @@ import priceRouter from "./routes/price.js";
 import blockchainRouter from "./routes/blockchain.js";
 import loansRouter from "./routes/loans.js";
 import disbursementsRouter from "./routes/disbursements.js";
+import capitalRouter from "./routes/capital.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,6 +23,7 @@ app.use("/api/price", priceRouter);
 app.use("/api/blockchain", blockchainRouter);
 app.use("/api/loans", loansRouter);
 app.use("/api/disbursements", disbursementsRouter);
+app.use("/api/capital", capitalRouter);
 
 app.listen(PORT, () => {
   console.log(`API server running on http://localhost:${PORT}`);

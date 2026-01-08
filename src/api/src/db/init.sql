@@ -47,6 +47,31 @@ CREATE TABLE IF NOT EXISTS disbursements (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create capital_supplies table
+CREATE TABLE IF NOT EXISTS capital_supplies (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(10) NOT NULL,
+    amount DECIMAL(18, 8) NOT NULL,
+    wallet_address VARCHAR(255) NOT NULL,
+    tx_hash VARCHAR(255),
+    status VARCHAR(50) DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create deposit_addresses table
+CREATE TABLE IF NOT EXISTS deposit_addresses (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(10) NOT NULL,
+    address VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) DEFAULT 'active',
+    swept BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create index on email for faster lookups
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
@@ -54,6 +79,16 @@ CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_disbursements_loan_id ON disbursements(loan_id);
 CREATE INDEX IF NOT EXISTS idx_disbursements_customer_id ON disbursements(customer_id);
 CREATE INDEX IF NOT EXISTS idx_disbursements_status ON disbursements(status);
+
+-- Create indexes for capital_supplies
+CREATE INDEX IF NOT EXISTS idx_capital_supplies_user_id ON capital_supplies(user_id);
+CREATE INDEX IF NOT EXISTS idx_capital_supplies_status ON capital_supplies(status);
+CREATE INDEX IF NOT EXISTS idx_capital_supplies_token ON capital_supplies(token);
+
+-- Create indexes for deposit_addresses
+CREATE INDEX IF NOT EXISTS idx_deposit_addresses_user_id ON deposit_addresses(user_id);
+CREATE INDEX IF NOT EXISTS idx_deposit_addresses_status ON deposit_addresses(status);
+CREATE INDEX IF NOT EXISTS idx_deposit_addresses_swept ON deposit_addresses(swept);
 
 -- Insert a test user (password is 'password123' hashed with bcrypt)
 INSERT INTO users (email, password_hash)

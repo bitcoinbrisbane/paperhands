@@ -6,26 +6,12 @@ import { useAuth } from "../hooks/useAuth";
 export function LoginPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loginWithApple, loginWithPasskey, loading, error } = useAuth();
+  const { login, loading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const result = await login({ email, password });
-    if (result) {
-      navigate("/dashboard");
-    }
-  };
-
-  const handleAppleLogin = async () => {
-    const result = await loginWithApple();
-    if (result) {
-      navigate("/dashboard");
-    }
-  };
-
-  const handlePasskeyLogin = async () => {
-    const result = await loginWithPasskey();
     if (result) {
       navigate("/dashboard");
     }
@@ -74,8 +60,7 @@ export function LoginPanel() {
         <Button
           variant="outline-dark"
           className="w-100 mb-2"
-          onClick={handleAppleLogin}
-          disabled={loading}
+          disabled={true}
         >
           Apple
         </Button>
@@ -83,10 +68,9 @@ export function LoginPanel() {
         <Button
           variant="outline-secondary"
           className="w-100"
-          onClick={handlePasskeyLogin}
-          disabled={loading}
+          disabled={true}
         >
-          Passkit
+          Passkey
         </Button>
       </Card.Body>
     </Card>

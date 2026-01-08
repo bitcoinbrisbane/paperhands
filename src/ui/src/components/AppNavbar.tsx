@@ -26,6 +26,13 @@ export function AppNavbar() {
             >
               Loans
             </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/capital"
+              active={location.pathname === "/capital"}
+            >
+              Capital
+            </Nav.Link>
             <NavDropdown
               title="Transactions"
               id="transactions-dropdown"

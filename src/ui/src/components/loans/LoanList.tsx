@@ -62,31 +62,31 @@ export function LoanList({ loans, loading, onDepositClick }: LoanListProps) {
     <Card>
       <Card.Body className="p-0">
         <Table responsive hover className="mb-0">
-          <thead>
+          <thead className="table-light">
             <tr>
-              <th>Loan ID</th>
-              <th>Amount</th>
-              <th>Collateral</th>
-              <th>BTC Price</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th className="py-3">Loan ID</th>
+              <th className="py-3">Amount</th>
+              <th className="py-3">Collateral</th>
+              <th className="py-3">BTC Price</th>
+              <th className="py-3">Status</th>
+              <th className="py-3">Created</th>
+              <th className="py-3">Actions</th>
             </tr>
           </thead>
           <tbody>
             {loans.map((loan) => (
               <tr key={loan.id}>
-                <td>
+                <td className="py-3">
                   <code>#{loan.id}</code>
                 </td>
-                <td>
+                <td className="py-3">
                   <strong>${formatCurrency(loan.amountAud)}</strong> AUD
                 </td>
-                <td>{formatBtc(loan.collateralBtc)} BTC</td>
-                <td>${formatCurrency(loan.btcPriceAtCreation)}</td>
-                <td>{getStatusBadge(loan.status)}</td>
-                <td>{formatDate(loan.createdAt)}</td>
-                <td>
+                <td className="py-3">{formatBtc(loan.collateralBtc)} BTC</td>
+                <td className="py-3">${formatCurrency(loan.btcPriceAtCreation)}</td>
+                <td className="py-3">{getStatusBadge(loan.status)}</td>
+                <td className="py-3">{formatDate(loan.createdAt)}</td>
+                <td className="py-3">
                   {loan.status === "pending" && !loan.depositAddress && (
                     <Button
                       size="sm"
