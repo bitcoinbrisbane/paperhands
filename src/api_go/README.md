@@ -23,7 +23,13 @@ DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=postgres
 DB_NAME=paperhands
+
+# JWT Configuration
+JWT_SECRET=your-256-bit-secret-key-change-in-production
+JWT_EXPIRY_HOURS=24
 ```
+
+**Important:** Change `JWT_SECRET` to a secure random string (min 32 characters) in production.
 
 3. Ensure PostgreSQL is running and the database exists
 
@@ -41,11 +47,20 @@ The API will start on port 3001.
 - `GET /health` - Check API health status
 
 ### Authentication
+- `POST /auth/signup` - Register new user
+  - Request body: `{"email": "user@example.com", "password": "password123"}`
+  - Returns JWT token on success
 - `POST /auth/login` - User login
   - Request body: `{"email": "user@example.com", "password": "password"}`
+  - Returns JWT token on success
 - `POST /auth/logout` - User logout
 
-### Users
+### Users (Protected - requires JWT)
+All `/users` endpoints require a valid JWT token in the Authorization header:
+```
+Authorization: Bearer <your-jwt-token>
+```
+
 - `GET /users` - Get all users
 - `GET /users/:id` - Get user by ID
 - `POST /users` - Create a new user

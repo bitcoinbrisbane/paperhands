@@ -3,12 +3,12 @@ package handlers
 import (
 	"database/sql"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"paperhands/api/config"
 	"paperhands/api/models"
+	"paperhands/api/utils"
 )
 
 type LoginRequest struct {
@@ -79,9 +79,14 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// TODO: Generate JWT token
-	// For now, we'll use a placeholder token
-	token := "placeholder-token-" + time.Now().Format("20060102150405")
+	// Generate JWT token
+	token, err := utils.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate authentication token",
+		})
+		return
+	}
 
 	// Return success response
 	c.JSON(http.StatusOK, LoginResponse{
@@ -162,9 +167,14 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	// TODO: Generate JWT token
-	// For now, we'll use a placeholder token
-	token := "placeholder-token-" + time.Now().Format("20060102150405")
+	// Generate JWT token for auto-login after signup
+	token, err := utils.GenerateToken(user.ID, user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate authentication token",
+		})
+		return
+	}
 
 	// Return success response with token (auto-login after signup)
 	c.JSON(http.StatusCreated, LoginResponse{

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import api2 from "../services/api2";
 
 interface LoginCredentials {
   email: string;
@@ -22,11 +23,26 @@ export function useAuth() {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post<AuthResponse>("/auth/login", credentials);
+      const response = await api2.post<AuthResponse>("/auth/login", credentials);
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const register = async (credentials: LoginCredentials): Promise<AuthResponse | null> => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await api2.post<AuthResponse>("/auth/signup", credentials);
+      localStorage.setItem("token", response.data.token);
+      return response.data;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
       return null;
     } finally {
       setLoading(false);
@@ -69,6 +85,7 @@ export function useAuth() {
 
   return {
     login,
+    register,
     loginWithApple,
     loginWithPasskey,
     logout,

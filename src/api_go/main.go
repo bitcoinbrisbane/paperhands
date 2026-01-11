@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 	"paperhands/api/config"
 	"paperhands/api/handlers"
+	"paperhands/api/middleware"
 )
 
 func main() {
@@ -43,8 +44,9 @@ func main() {
 		auth.POST("/logout", handlers.Logout)
 	}
 
-	// Users routes
+	// Users routes (protected by JWT authentication)
 	users := r.Group("/users")
+	users.Use(middleware.AuthRequired())
 	{
 		users.GET("", handlers.GetAllUsers)
 		users.GET("/:id", handlers.GetUserByID)

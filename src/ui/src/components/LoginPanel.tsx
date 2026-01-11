@@ -6,12 +6,19 @@ import { useAuth } from "../hooks/useAuth";
 export function LoginPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { login, loading, error } = useAuth();
+  const { login, register, loading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const result = await login({ email, password });
+    if (result) {
+      navigate("/dashboard");
+    }
+  };
+
+  const handleRegister = async () => {
+    const result = await register({ email, password });
     if (result) {
       navigate("/dashboard");
     }
@@ -48,10 +55,19 @@ export function LoginPanel() {
           <Button
             variant="primary"
             type="submit"
-            className="w-100 mb-3"
+            className="w-100 mb-2"
             disabled={loading}
           >
             {loading ? <Spinner size="sm" /> : "Login"}
+          </Button>
+
+          <Button
+            variant="outline-primary"
+            className="w-100 mb-3"
+            disabled={loading}
+            onClick={handleRegister}
+          >
+            {loading ? <Spinner size="sm" /> : "Register"}
           </Button>
         </Form>
 
