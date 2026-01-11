@@ -64,12 +64,12 @@ export function Capital() {
       }
 
       // Request account access
-      const accounts = await window.ethereum.request({
+      const accounts = (await window.ethereum.request({
         method: "eth_requestAccounts",
-      });
+      })) as string[];
 
       if (accounts && accounts.length > 0) {
-        setWalletAddress(accounts[0] as string);
+        setWalletAddress(accounts[0]);
         setWalletConnected(true);
         setError("");
         setSuccess("Wallet connected successfully");
