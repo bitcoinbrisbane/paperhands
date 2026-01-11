@@ -38,6 +38,7 @@ func main() {
 	// Auth routes
 	auth := r.Group("/auth")
 	{
+		auth.POST("/signup", handlers.Signup)
 		auth.POST("/login", handlers.Login)
 		auth.POST("/logout", handlers.Logout)
 	}

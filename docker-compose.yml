@@ -33,6 +33,26 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  api_go:
+    build:
+      context: ./src/api_go
+      dockerfile: Dockerfile
+    container_name: paperhands-api-go
+    environment:
+      PORT: 3001
+      GIN_MODE: release
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: paperhands
+      DB_PASSWORD: paperhands_dev
+      DB_NAME: paperhands
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
   ui:
     build:
       context: ./src/ui

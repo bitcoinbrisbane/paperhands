@@ -16,6 +16,11 @@ type LoginRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
+type SignupRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8"`
+}
+
 type LoginResponse struct {
 	Message string      `json:"message"`
 	User    models.User `json:"user,omitempty"`
@@ -94,5 +99,77 @@ func Logout(c *gin.Context) {
 	// For now, we'll just return a success message
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Logout successful",
+	})
+}
+
+// Signup handles user registration
+func Signup(c *gin.Context) {
+	var req SignupRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	// Check if user already exists
+	var exists bool
+	checkQuery := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)"
+	err := config.DB.QueryRow(checkQuery, req.Email).Scan(&exists)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to check existing user",
+		})
+		return
+	}
+
+	if exists {
+		c.JSON(http.StatusConflict, gin.H{
+			"error": "User with this email already exists",
+		})
+		return
+	}
+
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to hash password",
+		})
+		return
+	}
+
+	// Insert user
+	var user models.User
+	insertQuery := `
+		INSERT INTO users (email, password_hash)
+		VALUES ($1, $2)
+		RETURNING id, email, created_at, updated_at
+	`
+
+	err = config.DB.QueryRow(insertQuery, req.Email, string(hashedPassword)).Scan(
+		&user.ID,
+		&user.Email,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to create user",
+		})
+		return
+	}
+
+	// TODO: Generate JWT token
+	// For now, we'll use a placeholder token
+	token := "placeholder-token-" + time.Now().Format("20060102150405")
+
+	// Return success response with token (auto-login after signup)
+	c.JSON(http.StatusCreated, LoginResponse{
+		Message: "User created successfully",
+		User:    user,
+		Token:   token,
 	})
 }
