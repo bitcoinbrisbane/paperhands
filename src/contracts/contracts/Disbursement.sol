@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 
 /**
  * @title Disbursement
- * @dev Contract for disbursing ERC20 tokens (AUDC) to loan recipients
+ * @dev Contract for disbursing ERC20 tokens (AUDM) to loan recipients
  * @notice Used by PaperHands for on-chain loan disbursements
  */
 contract Disbursement is Ownable, ReentrancyGuard, Pausable {

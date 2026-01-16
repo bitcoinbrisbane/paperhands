@@ -5,11 +5,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title MockAUDC
+ * @title MockAUDM
  * @dev Mock ERC20 token for testing the Disbursement contract
  * @notice This is only for testing purposes - do not use in production
  */
-contract MockAUDC is ERC20, Ownable {
+contract MockAUDM is ERC20, Ownable {
     uint8 private _decimals;
 
     constructor(

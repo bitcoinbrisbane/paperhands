@@ -1,36 +1,36 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { Disbursement, MockAUDC } from "../typechain-types";
+import { Disbursement, MockAUDM } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("Disbursement", function () {
-  const AUDC_DECIMALS = 6;
-  const INITIAL_SUPPLY = ethers.parseUnits("1000000", AUDC_DECIMALS); // 1M AUDC
-  const CONTRACT_FUNDING = ethers.parseUnits("500000", AUDC_DECIMALS); // 500K AUDC
+  const AUDM_DECIMALS = 6;
+  const INITIAL_SUPPLY = ethers.parseUnits("1000000", AUDM_DECIMALS); // 1M AUDM
+  const CONTRACT_FUNDING = ethers.parseUnits("500000", AUDM_DECIMALS); // 500K AUDM
 
   async function deployFixture() {
     const [owner, recipient1, recipient2, other] = await ethers.getSigners();
 
-    // Deploy MockAUDC
-    const MockAUDC = await ethers.getContractFactory("MockAUDC");
-    const audc = await MockAUDC.deploy("Australian Dollar Coin", "AUDC", AUDC_DECIMALS);
+    // Deploy MockAUDM
+    const MockAUDM = await ethers.getContractFactory("MockAUDM");
+    const audm = await MockAUDM.deploy("Australian Dollar Coin", "AUDM", AUDM_DECIMALS);
 
     // Deploy Disbursement
     const Disbursement = await ethers.getContractFactory("Disbursement");
-    const disbursement = await Disbursement.deploy(await audc.getAddress());
+    const disbursement = await Disbursement.deploy(await audm.getAddress());
 
     // Mint tokens to owner and fund the disbursement contract
-    await audc.mint(owner.address, INITIAL_SUPPLY);
-    await audc.mint(await disbursement.getAddress(), CONTRACT_FUNDING);
+    await audm.mint(owner.address, INITIAL_SUPPLY);
+    await audm.mint(await disbursement.getAddress(), CONTRACT_FUNDING);
 
-    return { disbursement, audc, owner, recipient1, recipient2, other };
+    return { disbursement, audm, owner, recipient1, recipient2, other };
   }
 
   describe("Deployment", function () {
     it("Should set the correct token address", async function () {
-      const { disbursement, audc } = await loadFixture(deployFixture);
-      expect(await disbursement.disbursementToken()).to.equal(await audc.getAddress());
+      const { disbursement, audm } = await loadFixture(deployFixture);
+      expect(await disbursement.disbursementToken()).to.equal(await audm.getAddress());
     });
 
     it("Should set the correct owner", async function () {
@@ -54,12 +54,12 @@ describe("Disbursement", function () {
 
   describe("Disburse", function () {
     it("Should disburse tokens to recipient", async function () {
-      const { disbursement, audc, recipient1 } = await loadFixture(deployFixture);
+      const { disbursement, audm, recipient1 } = await loadFixture(deployFixture);
 
       const loanId = ethers.encodeBytes32String("LOAN001");
-      const amount = ethers.parseUnits("1000", AUDC_DECIMALS);
+      const amount = ethers.parseUnits("1000", AUDM_DECIMALS);
 
-      const recipientBalanceBefore = await audc.balanceOf(recipient1.address);
+      const recipientBalanceBefore = await audm.balanceOf(recipient1.address);
 
       await expect(disbursement.disburse(loanId, recipient1.address, amount))
         .to.emit(disbursement, "DisbursementCompleted")
@@ -72,7 +72,7 @@ describe("Disbursement", function () {
           (timestamp: bigint) => timestamp > 0n
         );
 
-      const recipientBalanceAfter = await audc.balanceOf(recipient1.address);
+      const recipientBalanceAfter = await audm.balanceOf(recipient1.address);
       expect(recipientBalanceAfter - recipientBalanceBefore).to.equal(amount);
     });
 
@@ -82,7 +82,7 @@ describe("Disbursement", function () {
       expect(await disbursement.getDisbursementCount()).to.equal(0);
 
       const loanId = ethers.encodeBytes32String("LOAN001");
-      const amount = ethers.parseUnits("1000", AUDC_DECIMALS);
+      const amount = ethers.parseUnits("1000", AUDM_DECIMALS);
 
       await disbursement.disburse(loanId, recipient1.address, amount);
       expect(await disbursement.getDisbursementCount()).to.equal(1);
@@ -99,7 +99,7 @@ describe("Disbursement", function () {
       const { disbursement, recipient1, other } = await loadFixture(deployFixture);
 
       const loanId = ethers.encodeBytes32String("LOAN001");
-      const amount = ethers.parseUnits("1000", AUDC_DECIMALS);
+      const amount = ethers.parseUnits("1000", AUDM_DECIMALS);
 
       await expect(
         disbursement.connect(other).disburse(loanId, recipient1.address, amount)
@@ -110,7 +110,7 @@ describe("Disbursement", function () {
       const { disbursement } = await loadFixture(deployFixture);
 
       const loanId = ethers.encodeBytes32String("LOAN001");
-      const amount = ethers.parseUnits("1000", AUDC_DECIMALS);
+      const amount = ethers.parseUnits("1000", AUDM_DECIMALS);
 
       await expect(
         disbursement.disburse(loanId, ethers.ZeroAddress, amount)
@@ -131,7 +131,7 @@ describe("Disbursement", function () {
       const { disbursement, recipient1 } = await loadFixture(deployFixture);
 
       const loanId = ethers.encodeBytes32String("LOAN001");
-      const amount = ethers.parseUnits("1000000", AUDC_DECIMALS); // More than contract has
+      const amount = ethers.parseUnits("1000000", AUDM_DECIMALS); // More than contract has
 
       await expect(
         disbursement.disburse(loanId, recipient1.address, amount)
@@ -141,7 +141,7 @@ describe("Disbursement", function () {
 
   describe("Batch Disburse", function () {
     it("Should batch disburse to multiple recipients", async function () {
-      const { disbursement, audc, recipient1, recipient2 } = await loadFixture(deployFixture);
+      const { disbursement, audm, recipient1, recipient2 } = await loadFixture(deployFixture);
 
       const loanIds = [
         ethers.encodeBytes32String("LOAN001"),
@@ -149,19 +149,19 @@ describe("Disbursement", function () {
       ];
       const recipients = [recipient1.address, recipient2.address];
       const amounts = [
-        ethers.parseUnits("1000", AUDC_DECIMALS),
-        ethers.parseUnits("2000", AUDC_DECIMALS),
+        ethers.parseUnits("1000", AUDM_DECIMALS),
+        ethers.parseUnits("2000", AUDM_DECIMALS),
       ];
 
-      const recipient1BalanceBefore = await audc.balanceOf(recipient1.address);
-      const recipient2BalanceBefore = await audc.balanceOf(recipient2.address);
+      const recipient1BalanceBefore = await audm.balanceOf(recipient1.address);
+      const recipient2BalanceBefore = await audm.balanceOf(recipient2.address);
 
       await disbursement.batchDisburse(loanIds, recipients, amounts);
 
-      expect(await audc.balanceOf(recipient1.address) - recipient1BalanceBefore).to.equal(
+      expect(await audm.balanceOf(recipient1.address) - recipient1BalanceBefore).to.equal(
         amounts[0]
       );
-      expect(await audc.balanceOf(recipient2.address) - recipient2BalanceBefore).to.equal(
+      expect(await audm.balanceOf(recipient2.address) - recipient2BalanceBefore).to.equal(
         amounts[1]
       );
       expect(await disbursement.getDisbursementCount()).to.equal(2);
@@ -172,7 +172,7 @@ describe("Disbursement", function () {
 
       const loanIds = [ethers.encodeBytes32String("LOAN001")];
       const recipients = [recipient1.address, recipient2.address];
-      const amounts = [ethers.parseUnits("1000", AUDC_DECIMALS)];
+      const amounts = [ethers.parseUnits("1000", AUDM_DECIMALS)];
 
       await expect(
         disbursement.batchDisburse(loanIds, recipients, amounts)
@@ -188,8 +188,8 @@ describe("Disbursement", function () {
       ];
       const recipients = [recipient1.address, recipient2.address];
       const amounts = [
-        ethers.parseUnits("400000", AUDC_DECIMALS),
-        ethers.parseUnits("200000", AUDC_DECIMALS),
+        ethers.parseUnits("400000", AUDM_DECIMALS),
+        ethers.parseUnits("200000", AUDM_DECIMALS),
       ]; // Total > 500K
 
       await expect(
@@ -205,7 +205,7 @@ describe("Disbursement", function () {
       await disbursement.pause();
 
       const loanId = ethers.encodeBytes32String("LOAN001");
-      const amount = ethers.parseUnits("1000", AUDC_DECIMALS);
+      const amount = ethers.parseUnits("1000", AUDM_DECIMALS);
 
       await expect(
         disbursement.disburse(loanId, recipient1.address, amount)
@@ -228,37 +228,37 @@ describe("Disbursement", function () {
 
   describe("Admin Functions", function () {
     it("Should update disbursement token", async function () {
-      const { disbursement, audc, owner } = await loadFixture(deployFixture);
+      const { disbursement, audm, owner } = await loadFixture(deployFixture);
 
       // Deploy new token
-      const MockAUDC = await ethers.getContractFactory("MockAUDC");
-      const newToken = await MockAUDC.deploy("New Token", "NEW", 6);
+      const MockAUDM = await ethers.getContractFactory("MockAUDM");
+      const newToken = await MockAUDM.deploy("New Token", "NEW", 6);
 
       await expect(disbursement.setDisbursementToken(await newToken.getAddress()))
         .to.emit(disbursement, "TokenUpdated")
-        .withArgs(await audc.getAddress(), await newToken.getAddress());
+        .withArgs(await audm.getAddress(), await newToken.getAddress());
 
       expect(await disbursement.disbursementToken()).to.equal(await newToken.getAddress());
     });
 
     it("Should withdraw tokens", async function () {
-      const { disbursement, audc, owner } = await loadFixture(deployFixture);
+      const { disbursement, audm, owner } = await loadFixture(deployFixture);
 
-      const withdrawAmount = ethers.parseUnits("100000", AUDC_DECIMALS);
-      const ownerBalanceBefore = await audc.balanceOf(owner.address);
+      const withdrawAmount = ethers.parseUnits("100000", AUDM_DECIMALS);
+      const ownerBalanceBefore = await audm.balanceOf(owner.address);
 
-      await disbursement.withdrawTokens(await audc.getAddress(), owner.address, withdrawAmount);
+      await disbursement.withdrawTokens(await audm.getAddress(), owner.address, withdrawAmount);
 
-      expect(await audc.balanceOf(owner.address) - ownerBalanceBefore).to.equal(withdrawAmount);
+      expect(await audm.balanceOf(owner.address) - ownerBalanceBefore).to.equal(withdrawAmount);
     });
 
     it("Should revert withdraw to zero address", async function () {
-      const { disbursement, audc } = await loadFixture(deployFixture);
+      const { disbursement, audm } = await loadFixture(deployFixture);
 
-      const withdrawAmount = ethers.parseUnits("100000", AUDC_DECIMALS);
+      const withdrawAmount = ethers.parseUnits("100000", AUDM_DECIMALS);
 
       await expect(
-        disbursement.withdrawTokens(await audc.getAddress(), ethers.ZeroAddress, withdrawAmount)
+        disbursement.withdrawTokens(await audm.getAddress(), ethers.ZeroAddress, withdrawAmount)
       ).to.be.revertedWithCustomError(disbursement, "InvalidAddress");
     });
   });

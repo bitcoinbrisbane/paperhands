@@ -4,7 +4,7 @@ Solidity smart contracts for on-chain AUD disbursements using Hardhat and TypeSc
 
 ## Overview
 
-The `Disbursement` contract enables on-chain disbursement of ERC20 stablecoins (like AUDC) to loan recipients. It supports:
+The `Disbursement` contract enables on-chain disbursement of ERC20 stablecoins (like AUDM) to loan recipients. It supports:
 
 - Single disbursements with loan ID tracking
 - Batch disbursements for multiple recipients
@@ -58,7 +58,7 @@ yarn deploy:localhost
 # Set environment variables
 export INFURA_API_KEY=your_key
 export DEPLOYER_PRIVATE_KEY=your_key
-export AUDC_CONTRACT_ADDRESS=0x...
+export AUDM_CONTRACT_ADDRESS=0x...
 
 # Deploy
 yarn deploy:sepolia
@@ -93,7 +93,7 @@ The main contract for managing on-chain disbursements.
 - `TokenUpdated` - Emitted when the disbursement token is changed
 - `FundsWithdrawn` - Emitted when tokens are withdrawn
 
-### MockAUDC.sol
+### MockAUDM.sol
 
 A mock ERC20 token for testing purposes only.
 
@@ -103,7 +103,7 @@ The contracts are designed to integrate with the existing `OnChainDisbursementSe
 
 1. Deploy the contracts to your target network
 2. Set `DISBURSEMENT_CONTRACT_ADDRESS` in your API environment
-3. Fund the contract with AUDC tokens
+3. Fund the contract with AUDM tokens
 4. Update `OnChainDisbursementService` to call the contract's `disburse` function
 
 ## Security Considerations

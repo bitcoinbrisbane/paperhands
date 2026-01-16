@@ -7,33 +7,33 @@ async function main() {
   console.log("Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)));
   console.log("Network:", network.name);
 
-  // Get the AUDC token address from environment or use a default for testing
-  let audcTokenAddress = process.env.AUDC_CONTRACT_ADDRESS;
+  // Get the AUDM token address from environment or use a default for testing
+  let audmTokenAddress = process.env.AUDM_CONTRACT_ADDRESS;
 
   // For localhost/hardhat, deploy a mock token first
   if (network.name === "localhost" || network.name === "hardhat") {
-    console.log("\nDeploying MockAUDC token for testing...");
-    const MockAUDC = await ethers.getContractFactory("MockAUDC");
-    const mockAudc = await MockAUDC.deploy("Australian Dollar Coin", "AUDC", 6);
-    await mockAudc.waitForDeployment();
+    console.log("\nDeploying MockAUDM token for testing...");
+    const MockAUDM = await ethers.getContractFactory("MockAUDM");
+    const mockAudm = await MockAUDM.deploy("Australian Dollar Coin", "AUDM", 6);
+    await mockAudm.waitForDeployment();
 
-    audcTokenAddress = await mockAudc.getAddress();
-    console.log("MockAUDC deployed to:", audcTokenAddress);
+    audmTokenAddress = await mockAudm.getAddress();
+    console.log("MockAUDM deployed to:", audmTokenAddress);
 
     // Mint some tokens to deployer for testing
-    const mintAmount = ethers.parseUnits("1000000", 6); // 1M AUDC
-    await mockAudc.mint(deployer.address, mintAmount);
-    console.log("Minted", ethers.formatUnits(mintAmount, 6), "AUDC to deployer");
+    const mintAmount = ethers.parseUnits("1000000", 6); // 1M AUDM
+    await mockAudm.mint(deployer.address, mintAmount);
+    console.log("Minted", ethers.formatUnits(mintAmount, 6), "AUDM to deployer");
   }
 
-  if (!audcTokenAddress) {
-    throw new Error("AUDC_CONTRACT_ADDRESS environment variable not set");
+  if (!audmTokenAddress) {
+    throw new Error("AUDM_CONTRACT_ADDRESS environment variable not set");
   }
 
   // Deploy Disbursement contract
   console.log("\nDeploying Disbursement contract...");
   const Disbursement = await ethers.getContractFactory("Disbursement");
-  const disbursement = await Disbursement.deploy(audcTokenAddress);
+  const disbursement = await Disbursement.deploy(audmTokenAddress);
   await disbursement.waitForDeployment();
 
   const disbursementAddress = await disbursement.getAddress();
@@ -41,24 +41,24 @@ async function main() {
 
   // For localhost/hardhat, fund the disbursement contract
   if (network.name === "localhost" || network.name === "hardhat") {
-    const MockAUDC = await ethers.getContractFactory("MockAUDC");
-    const mockAudc = MockAUDC.attach(audcTokenAddress);
+    const MockAUDM = await ethers.getContractFactory("MockAUDM");
+    const mockAudm = MockAUDM.attach(audmTokenAddress);
 
-    const fundAmount = ethers.parseUnits("500000", 6); // 500K AUDC
-    await mockAudc.mint(disbursementAddress, fundAmount);
-    console.log("Funded Disbursement contract with", ethers.formatUnits(fundAmount, 6), "AUDC");
+    const fundAmount = ethers.parseUnits("500000", 6); // 500K AUDM
+    await mockAudm.mint(disbursementAddress, fundAmount);
+    console.log("Funded Disbursement contract with", ethers.formatUnits(fundAmount, 6), "AUDM");
   }
 
   console.log("\n--- Deployment Summary ---");
   console.log("Network:", network.name);
   console.log("Deployer:", deployer.address);
-  console.log("AUDC Token:", audcTokenAddress);
+  console.log("AUDM Token:", audmTokenAddress);
   console.log("Disbursement:", disbursementAddress);
   console.log("--------------------------");
 
   // Return addresses for programmatic use
   return {
-    audcToken: audcTokenAddress,
+    audcToken: audmTokenAddress,
     disbursement: disbursementAddress,
   };
 }
