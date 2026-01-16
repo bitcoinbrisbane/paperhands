@@ -15,7 +15,7 @@ import "@openzeppelin/contracts/utils/Pausable.sol";
 contract Disbursement is Ownable, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
-    // The stablecoin token used for disbursements (e.g., AUDC)
+    // The stablecoin token used for disbursements (e.g., AUDM)
     IERC20 public disbursementToken;
 
     // Mapping of loan ID to disbursement status
@@ -49,7 +49,11 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
 
     event TokenUpdated(address indexed oldToken, address indexed newToken);
 
-    event FundsWithdrawn(address indexed token, address indexed to, uint256 amount);
+    event FundsWithdrawn(
+        address indexed token,
+        address indexed to,
+        uint256 amount
+    );
 
     error InvalidAddress();
     error InvalidAmount();
@@ -82,9 +86,12 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
         if (recipient == address(0)) revert InvalidAddress();
         if (amount == 0) revert InvalidAmount();
 
-        bytes32 disbursementId = keccak256(abi.encodePacked(loanId, recipient, amount, block.timestamp));
+        bytes32 disbursementId = keccak256(
+            abi.encodePacked(loanId, recipient, amount, block.timestamp)
+        );
 
-        if (disbursements[disbursementId].completed) revert DisbursementAlreadyExists();
+        if (disbursements[disbursementId].completed)
+            revert DisbursementAlreadyExists();
 
         uint256 balance = disbursementToken.balanceOf(address(this));
         if (balance < amount) revert InsufficientBalance();
@@ -102,7 +109,13 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
         disbursementToken.safeTransfer(recipient, amount);
 
         emit DisbursementCreated(disbursementId, loanId, recipient, amount);
-        emit DisbursementCompleted(disbursementId, loanId, recipient, amount, block.timestamp);
+        emit DisbursementCompleted(
+            disbursementId,
+            loanId,
+            recipient,
+            amount,
+            block.timestamp
+        );
     }
 
     /**
@@ -116,7 +129,10 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
         address[] calldata recipients,
         uint256[] calldata amounts
     ) external onlyOwner nonReentrant whenNotPaused {
-        if (loanIds.length != recipients.length || recipients.length != amounts.length) {
+        if (
+            loanIds.length != recipients.length ||
+            recipients.length != amounts.length
+        ) {
             revert ArrayLengthMismatch();
         }
 
@@ -133,7 +149,13 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
             if (amounts[i] == 0) revert InvalidAmount();
 
             bytes32 disbursementId = keccak256(
-                abi.encodePacked(loanIds[i], recipients[i], amounts[i], block.timestamp, i)
+                abi.encodePacked(
+                    loanIds[i],
+                    recipients[i],
+                    amounts[i],
+                    block.timestamp,
+                    i
+                )
             );
 
             disbursements[disbursementId] = DisbursementRecord({
@@ -148,8 +170,19 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
 
             disbursementToken.safeTransfer(recipients[i], amounts[i]);
 
-            emit DisbursementCreated(disbursementId, loanIds[i], recipients[i], amounts[i]);
-            emit DisbursementCompleted(disbursementId, loanIds[i], recipients[i], amounts[i], block.timestamp);
+            emit DisbursementCreated(
+                disbursementId,
+                loanIds[i],
+                recipients[i],
+                amounts[i]
+            );
+            emit DisbursementCompleted(
+                disbursementId,
+                loanIds[i],
+                recipients[i],
+                amounts[i],
+                block.timestamp
+            );
         }
     }
 
@@ -166,7 +199,9 @@ contract Disbursement is Ownable, ReentrancyGuard, Pausable {
      * @param disbursementId The disbursement identifier
      * @return DisbursementRecord struct with details
      */
-    function getDisbursement(bytes32 disbursementId) external view returns (DisbursementRecord memory) {
+    function getDisbursement(
+        bytes32 disbursementId
+    ) external view returns (DisbursementRecord memory) {
         return disbursements[disbursementId];
     }
 
