@@ -119,13 +119,27 @@ ssh ${SERVER} << ENDSSH
         fi
     fi
 
-    # Copy our nginx config to the system
-    cp src/ui/nginx.conf /etc/nginx/sites-available/${DOMAIN} 2>/dev/null || cp src/ui/nginx.conf /etc/nginx/conf.d/${DOMAIN}.conf
+    # Create a simple nginx config just for SSL verification
+    cat > /etc/nginx/sites-available/${DOMAIN} << 'NGINXCONF'
+server {
+    listen 80;
+    server_name ftx.finance www.ftx.finance;
+
+    root /var/www/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+NGINXCONF
 
     # Enable the site (Debian/Ubuntu only)
     if [ -d /etc/nginx/sites-enabled ]; then
         ln -sf /etc/nginx/sites-available/${DOMAIN} /etc/nginx/sites-enabled/${DOMAIN}
         rm -f /etc/nginx/sites-enabled/default
+    else
+        cp /etc/nginx/sites-available/${DOMAIN} /etc/nginx/conf.d/${DOMAIN}.conf
     fi
 
     # Test and restart nginx
@@ -138,8 +152,9 @@ ssh ${SERVER} << ENDSSH
 
     echo "✓ SSL certificates obtained successfully"
 
-    # Stop system nginx
+    # Stop system nginx to free up ports for Docker
     systemctl stop nginx
+    systemctl disable nginx
 ENDSSH
 
 echo ""
