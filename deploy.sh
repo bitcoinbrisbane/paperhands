@@ -125,6 +125,11 @@ cd "$APP_DIR"
 docker compose down 2>/dev/null || true
 docker compose up --build -d
 
+echo "=== Pruning old Docker images ==="
+docker image prune -f
+docker builder prune -f 2>/dev/null || true
+echo "✓ Old images pruned"
+
 echo "=== Waiting for services to start ==="
 sleep 10
 
