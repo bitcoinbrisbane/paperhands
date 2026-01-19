@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, Button, Form, Row, Col, InputGroup, Spinner, Alert } from "react-bootstrap";
 import { useBtcPrice } from "../../hooks/useBtcPrice";
-import api from "../../services/api";
+import api2 from "../../services/api2";
 
 const LTV_RATIO = 0.5;
 const MIN_TERM_DAYS = 30;
@@ -44,7 +44,7 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
         throw new Error("BTC price not available");
       }
 
-      const response = await api.post("/loans", {
+      const response = await api2.post("/loans", {
         customerId: 1, // TODO: Get from auth context
         amountAud: loanAmount,
         collateralBtc: collateralBtc,

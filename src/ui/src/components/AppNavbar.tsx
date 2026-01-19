@@ -33,13 +33,6 @@ export function AppNavbar() {
             >
               Capital
             </Nav.Link>
-            <Nav.Link
-              as={Link}
-              to="/analytics"
-              active={location.pathname === "/analytics"}
-            >
-              Analytics
-            </Nav.Link>
             <NavDropdown
               title="Transactions"
               id="transactions-dropdown"

@@ -34,7 +34,7 @@ COPY --from=builder /app/main .
 COPY --from=builder /app/.env .
 
 # Expose port
-EXPOSE 3001
+EXPOSE 8081
 
 # Run the application
 CMD ["./main"]

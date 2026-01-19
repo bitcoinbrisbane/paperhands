@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Container, Card, Nav, Button, Form, Row, Col, InputGroup, Modal, Spinner } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
+import api2 from "../services/api2";
 import { useBtcPrice } from "../hooks/useBtcPrice";
 import { LoanApplicationModal } from "./loans/LoanApplicationModal";
 import { LoanList } from "./loans/LoanList";
@@ -33,7 +34,7 @@ export function Loans() {
   const fetchLoans = async () => {
     setLoansLoading(true);
     try {
-      const response = await api.get(`/loans?customerId=1&status=${activeTab}`);
+      const response = await api2.get(`/loans?customerId=1&status=${activeTab}`);
       setLoans(response.data);
     } catch (err) {
       console.error("Error fetching loans:", err);

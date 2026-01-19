@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../services/api";
+import api2 from "../services/api2";
 
 interface UseBtcPriceResult {
   price: number | null;
@@ -15,7 +15,7 @@ export function useBtcPrice(): UseBtcPriceResult {
   useEffect(() => {
     const fetchPrice = async () => {
       try {
-        const response = await api.get("/price/btc-aud");
+        const response = await api2.get("/price/btc-aud");
         setPrice(response.data.price);
         setError(null);
       } catch (err) {

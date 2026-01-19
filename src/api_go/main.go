@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"paperhands/api/config"
@@ -28,6 +30,16 @@ func main() {
 
 	// Create router
 	r := gin.Default()
+
+	// CORS configuration
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000", "http://localhost:8080"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {
@@ -54,10 +66,26 @@ func main() {
 		users.PUT("/:id", handlers.UpdateUser)
 	}
 
+	// Loans routes (protected by JWT authentication)
+	loans := r.Group("/loans")
+	loans.Use(middleware.AuthRequired())
+	{
+		loans.GET("", handlers.GetLoans)
+		loans.GET("/:id", handlers.GetLoanByID)
+		loans.POST("", handlers.CreateLoan)
+		loans.PUT("/:id", handlers.UpdateLoanStatus)
+	}
+
+	// Price routes (public - no auth required)
+	price := r.Group("/price")
+	{
+		price.GET("/btc-aud", handlers.GetBTCAUDPrice)
+	}
+
 	// Get port from environment or use default
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "3001"
+		port = "8081"
 	}
 
 	// Start server

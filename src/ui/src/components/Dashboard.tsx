@@ -1,14 +1,14 @@
-import { Container, Card } from "react-bootstrap";
+import { Container } from "react-bootstrap";
+import { LandingPageCharts } from "./LandingPageCharts";
 
 export function Dashboard() {
   return (
-    <Container className="py-4">
-      <h2>Dashboard</h2>
-      <Card>
-        <Card.Body>
-          <Card.Text>Welcome! You are logged in.</Card.Text>
-        </Card.Body>
-      </Card>
+    <Container fluid className="py-4">
+      <div className="mb-4">
+        <h2>Dashboard</h2>
+        <p className="text-muted">Bitcoin-backed lending platform overview</p>
+      </div>
+      <LandingPageCharts />
     </Container>
   );
 }

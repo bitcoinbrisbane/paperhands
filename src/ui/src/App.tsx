@@ -7,7 +7,6 @@ import { Loans } from "./components/Loans";
 import { Capital } from "./components/Capital";
 import { Transactions } from "./components/Transactions";
 import { TransactionsAUD } from "./components/TransactionsAUD";
-import { Analytics } from "./components/Analytics";
 
 function App() {
   return (
@@ -18,7 +17,6 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/loans" element={<Loans />} />
           <Route path="/capital" element={<Capital />} />
-          <Route path="/analytics" element={<Analytics />} />
           <Route path="/transactions" element={<Navigate to="/transactions/bitcoin" replace />} />
           <Route path="/transactions/bitcoin" element={<Transactions />} />
           <Route path="/transactions/aud" element={<TransactionsAUD />} />

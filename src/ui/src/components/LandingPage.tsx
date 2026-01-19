@@ -32,6 +32,28 @@ export function LandingPage() {
           Only for diamond hands.
         </p>
       </div>
+      <div
+        className="position-absolute text-white"
+        style={{
+          bottom: "1rem",
+          right: "1rem",
+          zIndex: 2,
+          fontSize: "0.75rem",
+          opacity: 0.7,
+          textShadow: "1px 1px 4px rgba(0, 0, 0, 0.7)",
+        }}
+      >
+        Cape Schanck VIC, Australia |{" "}
+        <a
+          href="https://unsplash.com/license"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-white"
+          style={{ textDecoration: "underline" }}
+        >
+          Unsplash License
+        </a>
+      </div>
     </div>
   );
 }

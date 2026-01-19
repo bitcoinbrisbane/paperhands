@@ -1,7 +1,8 @@
 import axios from "axios";
 
+// Golang api
 const api2 = axios.create({
-  baseURL: "/api2",
+  baseURL: import.meta.env.VITE_API2_URL || "http://localhost:8081",
   headers: {
     "Content-Type": "application/json",
   },

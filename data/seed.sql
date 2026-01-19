@@ -5,10 +5,11 @@
 -- You should change these in production!
 
 -- Insert test users
+-- Password for all test users is: password123
 INSERT INTO users (email, password_hash) VALUES
-    ('alice@example.com', '$2b$10$rBV2kGW8pZq7qDG6hxK0/.K9vXJYN9WXgKFKZ9xqN9Z9Z9Z9Z9Z9Z'),
-    ('bob@example.com', '$2b$10$rBV2kGW8pZq7qDG6hxK0/.K9vXJYN9WXgKFKZ9xqN9Z9Z9Z9Z9Z9Z'),
-    ('charlie@example.com', '$2b$10$rBV2kGW8pZq7qDG6hxK0/.K9vXJYN9WXgKFKZ9xqN9Z9Z9Z9Z9Z9Z')
+    ('alice@example.com', '$2a$10$V3CQjQ7xDqTCkpbTwbt1BuugTCtrj.5XKXT8vF6JC8bA5bJFEsnyS'),
+    ('bob@example.com', '$2a$10$V3CQjQ7xDqTCkpbTwbt1BuugTCtrj.5XKXT8vF6JC8bA5bJFEsnyS'),
+    ('charlie@example.com', '$2a$10$V3CQjQ7xDqTCkpbTwbt1BuugTCtrj.5XKXT8vF6JC8bA5bJFEsnyS')
 ON CONFLICT (email) DO NOTHING;
 
 -- Insert test customers

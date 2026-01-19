@@ -4,11 +4,12 @@ import (
 	"database/sql"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"paperhands/api/config"
 	"paperhands/api/models"
 	"paperhands/api/utils"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginRequest struct {
@@ -44,7 +45,7 @@ func Login(c *gin.Context) {
 	var hashedPassword string
 
 	query := `
-		SELECT id, email, password, created_at, updated_at
+		SELECT id, email, password_hash, created_at, updated_at
 		FROM users
 		WHERE email = $1
 	`
@@ -120,7 +121,7 @@ func Signup(c *gin.Context) {
 
 	// Check if user already exists
 	var exists bool
-	checkQuery := "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)"
+	const checkQuery string = "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)"
 	err := config.DB.QueryRow(checkQuery, req.Email).Scan(&exists)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -147,7 +148,7 @@ func Signup(c *gin.Context) {
 
 	// Insert user
 	var user models.User
-	insertQuery := `
+	const insertQuery string = `
 		INSERT INTO users (email, password_hash)
 		VALUES ($1, $2)
 		RETURNING id, email, created_at, updated_at
