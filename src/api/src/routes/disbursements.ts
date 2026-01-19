@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import { ApiDisbursementService } from "../services/ApiDisbursementService.js";
 import { OnChainDisbursementService } from "../services/OnChainDisbursementService.js";
 import {
   DisbursementMethod,
@@ -13,8 +12,7 @@ import {
 
 const router = express.Router();
 
-// Initialize both services
-const apiService = new ApiDisbursementService();
+// Initialize on-chain service
 const onChainService = new OnChainDisbursementService();
 
 interface CreateDisbursementRequest {
@@ -41,9 +39,9 @@ router.post(
         return;
       }
 
-      // Validate method
-      if (method !== DisbursementMethod.ON_CHAIN && method !== DisbursementMethod.API) {
-        res.status(400).json({ error: "Invalid disbursement method" });
+      // Validate method - only ON_CHAIN is supported
+      if (method !== DisbursementMethod.ON_CHAIN) {
+        res.status(400).json({ error: "Invalid disbursement method. Only 'on_chain' is supported." });
         return;
       }
 
@@ -60,13 +58,8 @@ router.post(
         // Update to processing
         await updateDisbursement(disbursement.id, DisbursementStatus.PROCESSING);
 
-        // Send using the appropriate service
-        let txHash: string;
-        if (method === DisbursementMethod.ON_CHAIN) {
-          txHash = await onChainService.send(amountAud, recipientAddress);
-        } else {
-          txHash = await apiService.send(amountAud, recipientAddress);
-        }
+        // Send using on-chain service
+        const txHash = await onChainService.send(amountAud, recipientAddress);
 
         // Update to completed
         await updateDisbursement(disbursement.id, DisbursementStatus.COMPLETED, txHash);
@@ -112,17 +105,14 @@ router.get("/balance/:method", async (req: Request<{ method: string }>, res: Res
   try {
     const method = req.params.method as DisbursementMethod;
 
-    // Validate method
-    if (method !== DisbursementMethod.ON_CHAIN && method !== DisbursementMethod.API) {
-      res.status(400).json({ error: "Invalid disbursement method" });
+    // Validate method - only ON_CHAIN is supported
+    if (method !== DisbursementMethod.ON_CHAIN) {
+      res.status(400).json({ error: "Invalid disbursement method. Only 'on_chain' is supported." });
       return;
     }
 
-    // Get balance from appropriate service
-    const balance =
-      method === DisbursementMethod.ON_CHAIN
-        ? await onChainService.balance()
-        : await apiService.balance();
+    // Get balance from on-chain service
+    const balance = await onChainService.balance();
 
     res.json({
       method,

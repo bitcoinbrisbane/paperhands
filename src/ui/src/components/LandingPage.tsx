@@ -1,22 +1,37 @@
-import { Container, Row, Col } from "react-bootstrap";
 import { LoginPanel } from "./LoginPanel";
-import { LandingPageCharts } from "./LandingPageCharts";
+import heroImage from "../assets/ka-long-li-b_6pyAdesjE-unsplash.jpg";
 
 export function LandingPage() {
   return (
-    <Container fluid className="landing-page">
-      <Row className="min-vh-100">
-        <Col md={4} lg={3} className="d-flex align-items-start pt-5 ps-4">
-          <LoginPanel />
-        </Col>
-        <Col md={8} lg={9} className="py-5 px-4">
-          <div className="mb-5">
-            <h1>Paperhands</h1>
-            <p className="text-muted">Bitcoin-backed lending platform analytics</p>
-          </div>
-          <LandingPageCharts />
-        </Col>
-      </Row>
-    </Container>
+    <div
+      className="landing-page min-vh-100 position-relative"
+      style={{
+        backgroundImage: `url(${heroImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      <div className="position-absolute top-0 start-0 p-4 p-md-5" style={{ zIndex: 2 }}>
+        <LoginPanel />
+      </div>
+      <div
+        className="position-absolute text-white"
+        style={{
+          bottom: "15%",
+          right: "10%",
+          zIndex: 2,
+          textAlign: "right",
+          textShadow: "2px 2px 8px rgba(0, 0, 0, 0.7)",
+        }}
+      >
+        <h1 style={{ fontSize: "4rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+          ftx.finance
+        </h1>
+        <p style={{ fontSize: "1.5rem", fontWeight: 300 }}>
+          Only for diamond hands.
+        </p>
+      </div>
+    </div>
   );
 }
