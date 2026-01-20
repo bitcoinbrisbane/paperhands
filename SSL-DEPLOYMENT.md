@@ -5,7 +5,11 @@ This guide explains how to deploy your application with SSL certificates using t
 ## Prerequisites
 
 1. **SSH Access**: You must have SSH access to `root@ftx.finance`
-2. **DNS Configuration**: Ensure `ftx.finance` and `www.ftx.finance` point to your server's IP
+2. **DNS Configuration**: Ensure these domains point to your server's IP:
+   - `ftx.finance`
+   - `www.ftx.finance`
+   - `api.ftx.finance`
+   - `api2.ftx.finance`
 3. **Ports Open**: Ensure ports 80 and 443 are open in your firewall
 4. **GitHub Access**: Server needs access to clone the public repository
 
@@ -45,7 +49,7 @@ This script will:
 ### 3. Obtain SSL Certificates
 - Uses Let's Encrypt to obtain free SSL certificates
 - Configures auto-renewal (certificates renew automatically every 90 days)
-- Supports both `ftx.finance` and `www.ftx.finance`
+- Supports all domains: `ftx.finance`, `www.ftx.finance`, `api.ftx.finance`, `api2.ftx.finance`
 
 ### 4. Deploy Application
 - Builds Docker containers with SSL support using `docker-compose.prod.yml`
@@ -57,8 +61,7 @@ This script will:
 - `deploy-ssl.sh` - Initial deployment script with SSL setup (run locally)
 - `deploy-update.sh` - Quick update script for subsequent deployments (run locally)
 - `docker-compose.prod.yml` - Production Docker Compose with SSL volume mounts
-- `src/ui/nginx-ssl.conf` - SSL-ready nginx configuration
-- `src/ui/nginx.conf` - Updated to use ftx.finance domain
+- `src/ui/nginx.conf` - Single nginx configuration with SSL and API subdomain support
 
 ## Deployment Workflow
 

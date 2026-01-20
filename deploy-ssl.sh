@@ -123,7 +123,7 @@ ssh ${SERVER} << ENDSSH
     cat > /etc/nginx/sites-available/${DOMAIN} << 'NGINXCONF'
 server {
     listen 80;
-    server_name ftx.finance www.ftx.finance;
+    server_name ftx.finance www.ftx.finance api.ftx.finance api2.ftx.finance;
 
     root /var/www/html;
     index index.html;
@@ -145,10 +145,10 @@ NGINXCONF
     # Test and restart nginx
     nginx -t && systemctl restart nginx
 
-    # Run certbot
+    # Run certbot for all domains
     echo "Running certbot..."
-    certbot --nginx -d ${DOMAIN} -d ${WWW_DOMAIN} --non-interactive --agree-tos --register-unsafely-without-email || \
-    certbot --nginx -d ${DOMAIN} -d ${WWW_DOMAIN}
+    certbot --nginx -d ${DOMAIN} -d ${WWW_DOMAIN} -d api.${DOMAIN} -d api2.${DOMAIN} --non-interactive --agree-tos --register-unsafely-without-email || \
+    certbot --nginx -d ${DOMAIN} -d ${WWW_DOMAIN} -d api.${DOMAIN} -d api2.${DOMAIN}
 
     echo "✓ SSL certificates obtained successfully"
 
@@ -200,8 +200,9 @@ echo "✓ SSL Setup Complete!"
 echo "================================="
 echo ""
 echo "Your application should now be running at:"
-echo "  https://${DOMAIN}"
-echo "  https://${WWW_DOMAIN}"
+echo "  https://${DOMAIN} (main site)"
+echo "  https://api.${DOMAIN} (TypeScript API)"
+echo "  https://api2.${DOMAIN} (Go API)"
 echo ""
 echo "SSL certificates will auto-renew. Check renewal with:"
 echo "  ssh ${SERVER} 'certbot renew --dry-run'"
