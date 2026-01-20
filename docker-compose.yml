@@ -16,6 +16,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   api:
     build:
@@ -51,18 +52,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    restart: unless-stopped
-
-  ui:
-    build:
-      context: ./src/ui
-      dockerfile: Dockerfile
-    container_name: paperhands-ui
-    ports:
-      - "5173:80"
-    depends_on:
-      - api
-      - api-go
     restart: unless-stopped
 
 volumes:

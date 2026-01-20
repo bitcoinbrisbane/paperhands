@@ -1,5 +1,5 @@
-# Build stage
-FROM node:24-alpine AS builder
+# Build stage - produces static files for nginx
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -9,12 +9,5 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
-
-COPY --from=builder /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80 443
-
-CMD ["nginx", "-g", "daemon off;"]
+# Output is in /app/dist
+# This will be copied to host by deployment script
