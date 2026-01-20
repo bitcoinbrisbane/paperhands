@@ -1,7 +1,10 @@
 import { LoginPanel } from "./LoginPanel";
 import heroImage from "../assets/ka-long-li-b_6pyAdesjE-unsplash.jpg";
+import { useBtcPrice } from "../hooks/useBtcPrice";
 
 export function LandingPage() {
+  const { price, loading } = useBtcPrice();
+
   return (
     <div
       className="landing-page min-vh-100 position-relative"
@@ -14,6 +17,30 @@ export function LandingPage() {
     >
       <div className="position-absolute top-0 start-0 p-4 p-md-5" style={{ zIndex: 2 }}>
         <LoginPanel />
+      </div>
+      <div
+        className="position-absolute top-0 end-0 p-4 p-md-5 text-white"
+        style={{
+          zIndex: 2,
+          textAlign: "right",
+          textShadow: "2px 2px 8px rgba(0, 0, 0, 0.7)",
+        }}
+      >
+        <div style={{ fontSize: "1rem", fontWeight: 300, opacity: 0.9 }}>
+          BTC/AUD
+        </div>
+        <div style={{ fontSize: "2rem", fontWeight: 700, marginTop: "0.25rem" }}>
+          {loading ? (
+            <span style={{ fontSize: "1.5rem" }}>...</span>
+          ) : price ? (
+            `$${price.toLocaleString("en-AU", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`
+          ) : (
+            <span style={{ fontSize: "1rem" }}>—</span>
+          )}
+        </div>
       </div>
       <div
         className="position-absolute text-white"
