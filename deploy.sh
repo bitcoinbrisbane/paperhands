@@ -230,6 +230,10 @@ NGINXCONF
     # Stop any running containers
     docker-compose down 2>/dev/null || true
 
+    # Remove old UI container if it exists (we serve UI via nginx now)
+    docker stop paperhands-ui 2>/dev/null || true
+    docker rm paperhands-ui 2>/dev/null || true
+
     # Start containers
     docker-compose up -d --build
 
