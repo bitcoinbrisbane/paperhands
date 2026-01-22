@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Container, Card, Form, Button, Row, Col, Alert, Table } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
-import api from "../services/api";
+import api2 from "../services/api2";
 
 type Token = "AAUD" | "USDC" | "USDT";
 
@@ -46,7 +46,7 @@ export function Capital() {
       setLoading(true);
       // TODO: Get actual user ID from auth context
       const userId = 1; // Temporary: using test user ID
-      const response = await api.get<CapitalSupply[]>(`/capital?userId=${userId}`);
+      const response = await api2.get<CapitalSupply[]>(`/capital?userId=${userId}`);
       setSupplies(response.data);
     } catch (err) {
       console.error("Error fetching capital supplies:", err);
@@ -104,7 +104,7 @@ export function Capital() {
       // TODO: Get actual user ID from auth context
       const userId = 1; // Temporary: using test user ID
 
-      await api.post("/capital", {
+      await api2.post("/capital", {
         userId,
         token: selectedToken,
         amount: parseFloat(amount),
@@ -135,7 +135,7 @@ export function Capital() {
       // TODO: Get actual user ID from auth context
       const userId = 1; // Temporary: using test user ID
 
-      const response = await api.post<DepositAddress>("/capital/deposit-address", {
+      const response = await api2.post<DepositAddress>("/capital/deposit-address", {
         userId,
         token: depositToken,
       });
@@ -351,7 +351,7 @@ export function Capital() {
               {loading && supplies.length === 0 ? (
                 <p className="text-muted">Loading...</p>
               ) : supplies.length === 0 ? (
-                <p className="text-muted">No capital supplies yet.</p>
+                <p className="text-muted">No capital supplied yet.</p>
               ) : (
                 <Table responsive striped hover>
                   <thead>

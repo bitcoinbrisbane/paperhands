@@ -33,7 +33,7 @@ func main() {
 
 	// CORS configuration
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000", "http://localhost:8080"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000", "http://localhost:8080", "https://ftx.finance", "https://www.ftx.finance"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -80,6 +80,16 @@ func main() {
 	price := r.Group("/price")
 	{
 		price.GET("/btc-aud", handlers.GetBTCAUDPrice)
+	}
+
+	// Capital routes (protected by JWT authentication)
+	capital := r.Group("/capital")
+	capital.Use(middleware.AuthRequired())
+	{
+		capital.GET("", handlers.GetCapitalSupplies)
+		capital.POST("", handlers.CreateCapitalSupply)
+		capital.POST("/deposit-address", handlers.GenerateDepositAddress)
+		capital.GET("/deposit-addresses", handlers.GetDepositAddresses)
 	}
 
 	// Get port from environment or use default
