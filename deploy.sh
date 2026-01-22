@@ -239,12 +239,19 @@ NGINXCONF
     docker-compose ps
 
     echo ""
-    echo "Step 8: Reloading nginx..."
+    echo "Step 8: Starting nginx..."
     echo "=========================="
 
-    # Final nginx reload with SSL config
-    nginx -t && systemctl reload nginx
-    echo "✓ Nginx reloaded"
+    # Final nginx start/restart with SSL config
+    nginx -t
+    if systemctl is-active --quiet nginx; then
+        systemctl reload nginx
+        echo "✓ Nginx reloaded"
+    else
+        systemctl enable nginx
+        systemctl start nginx
+        echo "✓ Nginx started"
+    fi
 
 ENDSSH
 
