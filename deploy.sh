@@ -148,8 +148,16 @@ ssh ${SERVER} << 'ENDSSH'
     # Build UI in Docker and extract dist files
     cd ${REMOTE_DIR}/src/ui
 
-    # Build the UI container
-    docker build -t paperhands-ui-builder .
+    # Ensure .env.production exists with correct values
+    cat > .env.production << 'ENVEOF'
+# Production API Base URLs
+VITE_API_URL=https://api.ftx.finance
+VITE_API2_URL=https://api2.ftx.finance
+ENVEOF
+    echo "✓ Created .env.production"
+
+    # Build the UI container (no cache to ensure fresh build with env vars)
+    docker build --no-cache -t paperhands-ui-builder .
 
     # Create a temporary container and copy dist files
     docker create --name ui-temp paperhands-ui-builder
