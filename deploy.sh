@@ -156,7 +156,11 @@ ssh ${SERVER} << 'ENDSSH'
 
     # Create a temporary container and copy dist files
     docker create --name ui-temp paperhands-ui-builder
+
+    # Clean old files before copying new ones
+    rm -rf ${WEB_ROOT}/*
     mkdir -p ${WEB_ROOT}
+
     docker cp ui-temp:/app/dist/. ${WEB_ROOT}/
     docker rm ui-temp
 
