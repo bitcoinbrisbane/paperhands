@@ -253,6 +253,14 @@ NGINXCONF
     echo "Container status:"
     docker-compose ps
 
+    # Clean up unused Docker resources
+    echo ""
+    echo "Cleaning up unused Docker resources..."
+    docker system prune -f --volumes 2>/dev/null || true
+    docker image prune -f 2>/dev/null || true
+    docker builder prune -f 2>/dev/null || true
+    echo "✓ Docker cleanup complete"
+
     echo ""
     echo "Step 8: Starting nginx..."
     echo "=========================="
