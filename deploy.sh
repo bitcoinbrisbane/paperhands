@@ -31,6 +31,12 @@ fi
 echo "✓ SSH connection successful"
 echo ""
 
+# Copy UI environment file to server before build
+echo "Copying UI environment file..."
+scp src/ui/.env.production ${SERVER}:/tmp/.env.production
+echo "✓ Environment file copied"
+echo ""
+
 # Main deployment on the server
 ssh ${SERVER} << 'ENDSSH'
     set -e
@@ -148,13 +154,10 @@ ssh ${SERVER} << 'ENDSSH'
     # Build UI in Docker and extract dist files
     cd ${REMOTE_DIR}/src/ui
 
-    # Ensure .env.production exists with correct values
-    cat > .env.production << 'ENVEOF'
-# Production API Base URLs
-VITE_API_URL=https://api.ftx.finance
-VITE_API2_URL=https://api2.ftx.finance
-ENVEOF
-    echo "✓ Created .env.production"
+    # Copy the SCP'd .env.production into the build context
+    cp /tmp/.env.production .env.production
+    echo "✓ Copied .env.production to build context"
+    cat .env.production
 
     # Build the UI container (no cache to ensure fresh build with env vars)
     docker build --no-cache -t paperhands-ui-builder .
