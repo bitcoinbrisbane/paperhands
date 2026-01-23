@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Golang api
 const api2 = axios.create({
-  baseURL: import.meta.env.VITE_API2_URL || "http://localhost:8081",
+  baseURL: import.meta.env.VITE_API2_URL || "https://api2.ftx.fi",
   headers: {
     "Content-Type": "application/json",
   },
