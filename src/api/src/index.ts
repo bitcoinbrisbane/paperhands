@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import "dotenv/config";
 import healthRouter from "./routes/health.js";
 import authRouter from "./routes/auth.js";
@@ -14,7 +13,8 @@ import analyticsRouter from "./routes/analytics.js";
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.use(cors());
+// Note: CORS is handled by nginx reverse proxy in production
+// For local development, you may need to enable cors middleware
 app.use(express.json());
 
 app.use("/api/health", healthRouter);
