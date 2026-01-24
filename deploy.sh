@@ -54,9 +54,9 @@ ssh ${SERVER} << 'ENDSSH'
         exit 1
     fi
 
-    # Update package lists
+    # Update package lists (non-fatal - continue even if mirror sync issues)
     if [ "$PKG_MANAGER" = "apt" ]; then
-        apt update
+        apt update || echo "Warning: apt update had issues, continuing with cached package lists"
     fi
 
     # Install git
