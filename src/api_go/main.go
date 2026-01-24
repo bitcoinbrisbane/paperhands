@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"paperhands/api/config"
@@ -29,8 +30,14 @@ func main() {
 	// Create router
 	r := gin.Default()
 
-	// Note: CORS is handled by nginx reverse proxy in production
-	// For local development, you may need to enable CORS middleware
+	// CORS configuration for local development
+	// In production, CORS is handled by nginx reverse proxy
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000", "https://ftx.finance", "https://www.ftx.finance"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: true,
+	}))
 
 	// Health check endpoint
 	r.GET("/health", func(c *gin.Context) {

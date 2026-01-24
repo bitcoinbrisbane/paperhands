@@ -52,6 +52,13 @@ export function AppNavbar() {
               >
                 AUD
               </NavDropdown.Item>
+              <NavDropdown.Item
+                as={Link}
+                to="/transactions/stablecoins"
+                active={location.pathname === "/transactions/stablecoins"}
+              >
+                Stable coins
+              </NavDropdown.Item>
             </NavDropdown>
           </Nav>
           <Nav>

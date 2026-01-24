@@ -165,7 +165,7 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
                 <div className="mb-3">
                   <div className="text-muted small">BTC Price</div>
                   <div className="h6 mb-0">
-                    {priceLoading ? <Spinner size="sm" /> : `$${btcPrice?.toLocaleString()} AUD`}
+                    {priceLoading ? <Spinner size="sm" /> : btcPrice ? `$${btcPrice.toLocaleString()} AUD` : 'Price unavailable'}
                   </div>
                 </div>
 

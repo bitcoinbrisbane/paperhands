@@ -7,6 +7,7 @@ import { Loans } from "./components/Loans";
 import { Capital } from "./components/Capital";
 import { Transactions } from "./components/Transactions";
 import { TransactionsAUD } from "./components/TransactionsAUD";
+import { TransactionsStablecoins } from "./components/TransactionsStablecoins";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/transactions" element={<Navigate to="/transactions/bitcoin" replace />} />
           <Route path="/transactions/bitcoin" element={<Transactions />} />
           <Route path="/transactions/aud" element={<TransactionsAUD />} />
+          <Route path="/transactions/stablecoins" element={<TransactionsStablecoins />} />
         </Route>
       </Routes>
     </BrowserRouter>

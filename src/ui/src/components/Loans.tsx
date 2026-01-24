@@ -170,7 +170,7 @@ export function Loans() {
                 <div>
                   <div className="text-muted small">BTC/AUD Rate</div>
                   <div className="h5">
-                    {priceLoading ? <Spinner size="sm" /> : `$${btcPrice?.toLocaleString()} AUD`}
+                    {priceLoading ? <Spinner size="sm" /> : btcPrice ? `$${btcPrice.toLocaleString()} AUD` : 'Price unavailable'}
                   </div>
                 </div>
               </div>
