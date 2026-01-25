@@ -6,6 +6,8 @@ interface CollateralAsset {
   description: string;
   network: string;
   icon: string;
+  balance: number;
+  utilisation: number;
 }
 
 const collateralAssets: CollateralAsset[] = [
@@ -15,6 +17,8 @@ const collateralAssets: CollateralAsset[] = [
     description: "Native Bitcoin on the Bitcoin network. The original cryptocurrency and most widely accepted form of collateral.",
     network: "Bitcoin",
     icon: "₿",
+    balance: 12.45678901,
+    utilisation: 67.5,
   },
   {
     symbol: "WBTC",
@@ -22,17 +26,25 @@ const collateralAssets: CollateralAsset[] = [
     description: "ERC-20 token backed 1:1 by Bitcoin. Enables Bitcoin to be used in Ethereum DeFi applications.",
     network: "Ethereum",
     icon: "₿",
+    balance: 3.21098765,
+    utilisation: 42.3,
   },
 ];
 
 export function Collateral() {
   return (
     <Container className="py-4">
-      <div className="mb-4">
-        <h4 className="mb-2">Collateral</h4>
-        <p className="text-muted mb-0">
-          View supported collateral types for Bitcoin-backed loans
-        </p>
+      {/* Header */}
+      <div className="d-flex align-items-center mb-4">
+        <div className="btc-icon me-3">
+          <span className="bitcoin-badge">₿</span>
+        </div>
+        <div>
+          <h4 className="mb-0">Collateral</h4>
+          <p className="text-muted mb-0">
+            View supported collateral types for Bitcoin-backed loans
+          </p>
+        </div>
       </div>
 
       <Row>
@@ -41,11 +53,8 @@ export function Collateral() {
             <Card className="h-100">
               <Card.Body>
                 <div className="d-flex align-items-center mb-3">
-                  <div
-                    className="d-flex align-items-center justify-content-center rounded-circle bg-warning text-dark me-3"
-                    style={{ width: 48, height: 48, fontSize: "1.5rem" }}
-                  >
-                    {asset.icon}
+                  <div className="btc-icon me-3">
+                    <span className="bitcoin-badge">{asset.icon}</span>
                   </div>
                   <div>
                     <h5 className="mb-0">{asset.name}</h5>
@@ -53,6 +62,18 @@ export function Collateral() {
                   </div>
                 </div>
                 <Card.Text>{asset.description}</Card.Text>
+                <div className="p-3 bg-light rounded mt-3">
+                  <Row>
+                    <Col xs={6}>
+                      <div className="text-muted small">Balance</div>
+                      <div className="h5 mb-0">{asset.balance.toFixed(8)} {asset.symbol}</div>
+                    </Col>
+                    <Col xs={6}>
+                      <div className="text-muted small">Utilisation</div>
+                      <div className="h5 mb-0">{asset.utilisation.toFixed(1)}%</div>
+                    </Col>
+                  </Row>
+                </div>
                 <div className="mt-3">
                   <span className="badge bg-secondary">{asset.network}</span>
                 </div>
