@@ -14,6 +14,7 @@ import {
 import { QRCodeSVG } from "qrcode.react";
 import api2 from "../services/api2";
 import { useBtcPrice } from "../hooks/useBtcPrice";
+import { useUserId } from "../hooks/useUserId";
 import { LoanApplicationModal } from "./loans/LoanApplicationModal";
 import { LoanList } from "./loans/LoanList";
 import { Loan } from "../types/loan";
@@ -22,6 +23,7 @@ type LoanStatus = "active" | "pending" | "inactive";
 const LTV_RATIO = 0.5; // 50% loan-to-value
 
 export function Loans() {
+  const userId = useUserId();
   const [activeTab, setActiveTab] = useState<LoanStatus>("pending");
   const [loanAmount, setLoanAmount] = useState(500);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -45,7 +47,7 @@ export function Loans() {
     setLoansLoading(true);
     try {
       const response = await api2.get(
-        `/loans?customerId=1&status=${activeTab}`,
+        `/loans?customerId=${userId}&status=${activeTab}`,
       );
       setLoans(response.data);
     } catch (err) {

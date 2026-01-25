@@ -3,6 +3,7 @@ import { Container, Card, Row, Col, Button, Modal, Spinner, Table, Badge } from 
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
 import api2 from "../services/api2";
+import { useUserId } from "../hooks/useUserId";
 
 interface Transaction {
   txid: string;
@@ -27,6 +28,7 @@ interface AddressBalance {
 }
 
 export function Transactions() {
+  const userId = useUserId();
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositAddress, setDepositAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,7 +62,7 @@ export function Transactions() {
     setError(null);
     try {
       const response = await api2.post("/bitcoin/address", {
-        customerId: 1,
+        customerId: userId,
         loanId: 0,
       });
       setDepositAddress(response.data.address);
@@ -78,7 +80,7 @@ export function Transactions() {
     const init = async () => {
       try {
         const response = await api2.post("/bitcoin/address", {
-          customerId: 1,
+          customerId: userId,
           loanId: 0,
         });
         const address = response.data.address;

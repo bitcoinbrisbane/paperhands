@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Container, Card, Row, Col, Button, Modal, Spinner, Table, Badge } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
+import { useUserId } from "../hooks/useUserId";
 
 interface Transaction {
   txid: string;
@@ -26,6 +27,7 @@ interface AddressBalance {
 }
 
 export function TransactionsAUD() {
+  const userId = useUserId();
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [depositAddress, setDepositAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -64,7 +66,7 @@ export function TransactionsAUD() {
     setError(null);
     try {
       const response = await api.post("/ethereum/address", {
-        customerId: 1,
+        customerId: userId,
         accountType: "aud",
       });
       setDepositAddress(response.data.address);
@@ -82,7 +84,7 @@ export function TransactionsAUD() {
     const init = async () => {
       try {
         const response = await api.post("/ethereum/address", {
-          customerId: 1,
+          customerId: userId,
           accountType: "aud",
         });
         const address = response.data.address;

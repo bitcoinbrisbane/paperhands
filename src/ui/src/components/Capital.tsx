@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
-import { Container, Card, Form, Button, Row, Col, Alert, Table } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Form,
+  Button,
+  Row,
+  Col,
+  Alert,
+  Table,
+} from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import api2 from "../services/api2";
+import { useUserId } from "../hooks/useUserId";
 
 type Token = "AAUD" | "USDC" | "USDT";
 
@@ -25,6 +35,7 @@ interface DepositAddress {
 }
 
 export function Capital() {
+  const userId = useUserId();
   const [selectedToken, setSelectedToken] = useState<Token>("AAUD");
   const [amount, setAmount] = useState("");
   const [walletConnected, setWalletConnected] = useState(false);
@@ -34,7 +45,9 @@ export function Capital() {
   const [supplies, setSupplies] = useState<CapitalSupply[]>([]);
   const [loading, setLoading] = useState(false);
   const [depositToken, setDepositToken] = useState<Token>("AAUD");
-  const [depositAddress, setDepositAddress] = useState<DepositAddress | null>(null);
+  const [depositAddress, setDepositAddress] = useState<DepositAddress | null>(
+    null,
+  );
   const [generatingAddress, setGeneratingAddress] = useState(false);
 
   useEffect(() => {
@@ -44,9 +57,9 @@ export function Capital() {
   const fetchSupplies = async () => {
     try {
       setLoading(true);
-      // TODO: Get actual user ID from auth context
-      const userId = 1; // Temporary: using test user ID
-      const response = await api2.get<CapitalSupply[]>(`/capital?userId=${userId}`);
+      const response = await api2.get<CapitalSupply[]>(
+        `/capital?userId=${userId}`,
+      );
       setSupplies(response.data);
     } catch (err) {
       console.error("Error fetching capital supplies:", err);
@@ -72,7 +85,7 @@ export function Capital() {
         setWalletAddress(accounts[0]);
         setWalletConnected(true);
         setError("");
-        setSuccess("Wallet connected successfully");
+        setSuccess("Wallet connected successfully!");
       }
     } catch (err) {
       setError("Failed to connect wallet. Please try again.");
@@ -100,9 +113,6 @@ export function Capital() {
       // TODO: Implement actual smart contract interaction to get tx_hash
       // For now, we'll create a mock transaction hash
       const mockTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
-
-      // TODO: Get actual user ID from auth context
-      const userId = 1; // Temporary: using test user ID
 
       await api2.post("/capital", {
         userId,
@@ -132,13 +142,13 @@ export function Capital() {
     try {
       setGeneratingAddress(true);
 
-      // TODO: Get actual user ID from auth context
-      const userId = 1; // Temporary: using test user ID
-
-      const response = await api2.post<DepositAddress>("/capital/deposit-address", {
-        userId,
-        token: depositToken,
-      });
+      const response = await api2.post<DepositAddress>(
+        "/capital/deposit-address",
+        {
+          userId,
+          token: depositToken,
+        },
+      );
 
       setDepositAddress(response.data);
 
@@ -167,12 +177,21 @@ export function Capital() {
       <div className="mb-4">
         <h4 className="mb-2">Supply Capital</h4>
         <p className="text-muted mb-0">
-          Supply stablecoins (AAUD, USDC, or USDT) to earn interest by lending to BTC-backed loan borrowers
+          Supply stablecoins (AAUD, USDC, or USDT) to earn interest by lending
+          to BTC-backed loan borrowers
         </p>
       </div>
 
-      {error && <Alert variant="danger" dismissible onClose={() => setError("")}>{error}</Alert>}
-      {success && <Alert variant="success" dismissible onClose={() => setSuccess("")}>{success}</Alert>}
+      {error && (
+        <Alert variant="danger" dismissible onClose={() => setError("")}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert variant="success" dismissible onClose={() => setSuccess("")}>
+          {success}
+        </Alert>
+      )}
 
       <Row>
         <Col md={8} lg={6}>
@@ -182,7 +201,9 @@ export function Capital() {
 
               {!walletConnected ? (
                 <div className="text-center py-4">
-                  <p className="mb-3">Connect your Ethereum wallet to get started</p>
+                  <p className="mb-3">
+                    Connect your Ethereum wallet to get started
+                  </p>
                   <Button variant="primary" onClick={handleConnectWallet}>
                     Connect Wallet
                   </Button>
@@ -191,7 +212,8 @@ export function Capital() {
                 <>
                   <Alert variant="info" className="mb-3">
                     <small>
-                      <strong>Connected:</strong> {walletAddress.substring(0, 6)}...
+                      <strong>Connected:</strong>{" "}
+                      {walletAddress.substring(0, 6)}...
                       {walletAddress.substring(walletAddress.length - 4)}
                     </small>
                   </Alert>
@@ -201,7 +223,9 @@ export function Capital() {
                       <Form.Label>Select Token</Form.Label>
                       <Form.Select
                         value={selectedToken}
-                        onChange={(e) => setSelectedToken(e.target.value as Token)}
+                        onChange={(e) =>
+                          setSelectedToken(e.target.value as Token)
+                        }
                       >
                         <option value="AAUD">AAUD</option>
                         <option value="USDC">USDC</option>
@@ -261,7 +285,8 @@ export function Capital() {
             <Card.Body>
               <Card.Title>Deposit by QR Code</Card.Title>
               <p className="text-muted">
-                Generate a unique deposit address for your tokens. Send funds to this address and they will be swept later.
+                Generate a unique deposit address for your tokens. Send funds to
+                this address and they will be swept later.
               </p>
 
               <Form>
@@ -283,7 +308,9 @@ export function Capital() {
                   onClick={handleGenerateDepositAddress}
                   disabled={generatingAddress}
                 >
-                  {generatingAddress ? "Generating..." : "Generate Deposit Address"}
+                  {generatingAddress
+                    ? "Generating..."
+                    : "Generate Deposit Address"}
                 </Button>
               </Form>
 
@@ -293,7 +320,10 @@ export function Capital() {
                     <small>
                       <strong>Deposit Address ({depositAddress.token}):</strong>
                     </small>
-                    <div className="mt-2 mb-2" style={{ wordBreak: "break-all", fontSize: "0.9rem" }}>
+                    <div
+                      className="mt-2 mb-2"
+                      style={{ wordBreak: "break-all", fontSize: "0.9rem" }}
+                    >
                       {depositAddress.address}
                     </div>
                     <Button
@@ -335,7 +365,9 @@ export function Capital() {
               </ol>
               <Alert variant="warning" className="mt-3">
                 <small>
-                  <strong>Important:</strong> Only send the selected token type to this address. Sending other tokens may result in loss of funds.
+                  <strong>Important:</strong> Only send the selected token type
+                  to this address. Sending other tokens may result in loss of
+                  funds.
                 </small>
               </Alert>
             </Card.Body>
@@ -367,13 +399,17 @@ export function Capital() {
                   <tbody>
                     {supplies.map((supply) => (
                       <tr key={supply.id}>
-                        <td>{new Date(supply.createdAt).toLocaleDateString()}</td>
+                        <td>
+                          {new Date(supply.createdAt).toLocaleDateString()}
+                        </td>
                         <td>{supply.token}</td>
                         <td>{supply.amount.toFixed(2)}</td>
                         <td>
                           <small>
                             {supply.walletAddress.substring(0, 6)}...
-                            {supply.walletAddress.substring(supply.walletAddress.length - 4)}
+                            {supply.walletAddress.substring(
+                              supply.walletAddress.length - 4,
+                            )}
                           </small>
                         </td>
                         <td>
@@ -382,8 +418,8 @@ export function Capital() {
                               supply.status === "pending"
                                 ? "warning"
                                 : supply.status === "completed"
-                                ? "success"
-                                : "secondary"
+                                  ? "success"
+                                  : "secondary"
                             }`}
                           >
                             {supply.status}
@@ -398,7 +434,9 @@ export function Capital() {
                                 rel="noopener noreferrer"
                               >
                                 {supply.txHash.substring(0, 6)}...
-                                {supply.txHash.substring(supply.txHash.length - 4)}
+                                {supply.txHash.substring(
+                                  supply.txHash.length - 4,
+                                )}
                               </a>
                             </small>
                           ) : (

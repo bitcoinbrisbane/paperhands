@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Modal, Button, Form, Row, Col, InputGroup, Spinner, Alert } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import { useBtcPrice } from "../../hooks/useBtcPrice";
+import { useUserId } from "../../hooks/useUserId";
 import api2 from "../../services/api2";
 
 const MIN_TERM_DAYS = 30;
@@ -18,6 +19,7 @@ interface LoanApplicationModalProps {
 }
 
 export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicationModalProps) {
+  const userId = useUserId();
   const [loanAmount, setLoanAmount] = useState(5000);
   const [termDays, setTermDays] = useState(365);
   const [lvr, setLvr] = useState(DEFAULT_LVR);
@@ -90,7 +92,7 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
 
       // Step 1: Create loan via Go API
       const loanResponse = await api2.post("/loans", {
-        customerId: 1, // TODO: Get from auth context
+        customerId: userId,
         amountAud: loanAmount,
         collateralBtc: collateralBtc,
         btcPriceAtCreation: btcPrice,
@@ -101,7 +103,7 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
 
       // Step 2: Generate BTC address via Go API
       const addressResponse = await api2.post("/bitcoin/address", {
-        customerId: 1, // TODO: Get from auth context
+        customerId: userId,
         loanId: newLoanId,
       });
 
