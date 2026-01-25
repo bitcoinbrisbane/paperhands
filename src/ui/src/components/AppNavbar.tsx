@@ -33,6 +33,13 @@ export function AppNavbar() {
             >
               Capital
             </Nav.Link>
+            <Nav.Link
+              as={Link}
+              to="/collateral"
+              active={location.pathname === "/collateral"}
+            >
+              Collateral
+            </Nav.Link>
             <NavDropdown
               title="Transactions"
               id="transactions-dropdown"
