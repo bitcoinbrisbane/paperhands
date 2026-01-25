@@ -47,6 +47,19 @@ export function Collateral() {
         </div>
       </div>
 
+      <Card className="bg-light mb-4">
+        <Card.Body>
+          <Card.Title>About Collateral</Card.Title>
+          <Card.Text>
+            Collateral is the asset you deposit to secure your loan. We accept both native Bitcoin (BTC) and Wrapped Bitcoin (WBTC) as collateral for our lending services.
+          </Card.Text>
+          <ul className="mb-0">
+            <li><strong>BTC:</strong> Deposited to a secure multi-signature Bitcoin address</li>
+            <li><strong>WBTC:</strong> Deposited via smart contract on the Ethereum network</li>
+          </ul>
+        </Card.Body>
+      </Card>
+
       <Row>
         {collateralAssets.map((asset) => (
           <Col md={6} key={asset.symbol} className="mb-4">
@@ -81,23 +94,6 @@ export function Collateral() {
             </Card>
           </Col>
         ))}
-      </Row>
-
-      <Row className="mt-4">
-        <Col>
-          <Card className="bg-light">
-            <Card.Body>
-              <Card.Title>About Collateral</Card.Title>
-              <Card.Text>
-                Collateral is the asset you deposit to secure your loan. We accept both native Bitcoin (BTC) and Wrapped Bitcoin (WBTC) as collateral for our lending services.
-              </Card.Text>
-              <ul className="mb-0">
-                <li><strong>BTC:</strong> Deposited to a secure multi-signature Bitcoin address</li>
-                <li><strong>WBTC:</strong> Deposited via smart contract on the Ethereum network</li>
-              </ul>
-            </Card.Body>
-          </Card>
-        </Col>
       </Row>
     </Container>
   );

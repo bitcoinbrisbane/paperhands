@@ -28,6 +28,11 @@ type BitcoinAddressResponse struct {
 }
 
 // GenerateBitcoinAddress generates a Taproot (P2TR) address for a customer/loan
+// It supports two modes:
+// 1. XPUB mode (recommended): Uses an extended public key derived at m/86'/0'/0'
+//    This is more secure as the server never has access to private keys
+// 2. SEED mode (fallback): Uses a mnemonic seed phrase to derive keys
+//    Less secure as the server has access to private keys
 func GenerateBitcoinAddress(c *gin.Context) {
 	var req BitcoinAddressRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -35,45 +40,77 @@ func GenerateBitcoinAddress(c *gin.Context) {
 		return
 	}
 
-	seed := os.Getenv("SEED")
-	if seed == "" {
-		log.Println("SEED environment variable not configured")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "SEED not configured"})
-		return
+	var accountKey *hdkeychain.ExtendedKey
+	var err error
+
+	// Try XPUB first (more secure - public keys only)
+	xpub := os.Getenv("XPUB")
+	if xpub != "" {
+		accountKey, err = hdkeychain.NewKeyFromString(xpub)
+		if err != nil {
+			log.Printf("Error parsing XPUB: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid XPUB"})
+			return
+		}
+
+		// Verify it's a public key (not private)
+		if accountKey.IsPrivate() {
+			log.Println("Warning: XPUB contains private key, consider using public key only for security")
+		}
+
+		log.Println("Using XPUB for address generation (public key only mode)")
+	} else {
+		// Fall back to SEED (less secure - has private keys)
+		seed := os.Getenv("SEED")
+		if seed == "" {
+			log.Println("Neither XPUB nor SEED environment variable configured")
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "XPUB or SEED not configured"})
+			return
+		}
+
+		log.Println("Using SEED for address generation (private key mode)")
+
+		// Convert mnemonic to seed
+		seedBytes, err := bip39.NewSeedWithErrorChecking(seed, "")
+		if err != nil {
+			log.Printf("Error converting mnemonic to seed: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process seed"})
+			return
+		}
+
+		// Create HD wallet from seed (mainnet)
+		masterKey, err := hdkeychain.NewMaster(seedBytes, &chaincfg.MainNetParams)
+		if err != nil {
+			log.Printf("Error creating master key: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create master key"})
+			return
+		}
+
+		// Derive to account level: m/86'/0'/0'
+		// 86' = purpose (Taproot/BIP86)
+		// 0' = coin type (Bitcoin)
+		// 0' = account
+		hardenedPath := []uint32{
+			86 + hdkeychain.HardenedKeyStart,
+			0 + hdkeychain.HardenedKeyStart,
+			0 + hdkeychain.HardenedKeyStart,
+		}
+
+		accountKey = masterKey
+		for _, index := range hardenedPath {
+			accountKey, err = accountKey.Derive(index)
+			if err != nil {
+				log.Printf("Error deriving hardened key at index %d: %v", index, err)
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to derive key"})
+				return
+			}
+		}
 	}
 
-	// Convert mnemonic to seed
-	seedBytes, err := bip39.NewSeedWithErrorChecking(seed, "")
-	if err != nil {
-		log.Printf("Error converting mnemonic to seed: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process seed"})
-		return
-	}
-
-	// Create HD wallet from seed (mainnet)
-	masterKey, err := hdkeychain.NewMaster(seedBytes, &chaincfg.MainNetParams)
-	if err != nil {
-		log.Printf("Error creating master key: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create master key"})
-		return
-	}
-
-	// Derive path: m/86'/0'/0'/customerId/loanId (BIP86 for Taproot)
-	// 86' = purpose (Taproot)
-	// 0' = coin type (Bitcoin)
-	// 0' = account
-	// customerId = customer index
-	// loanId = address index
-	path := []uint32{
-		86 + hdkeychain.HardenedKeyStart,  // purpose
-		0 + hdkeychain.HardenedKeyStart,   // coin type
-		0 + hdkeychain.HardenedKeyStart,   // account
-		uint32(req.CustomerID),            // customer (non-hardened)
-		uint32(req.LoanID),                // loan (non-hardened)
-	}
-
-	key := masterKey
-	for _, index := range path {
+	// Derive non-hardened path: {customerId}/{loanId}
+	// This works with both xpub and full keys
+	key := accountKey
+	for _, index := range []uint32{uint32(req.CustomerID), uint32(req.LoanID)} {
 		key, err = key.Derive(index)
 		if err != nil {
 			log.Printf("Error deriving key at index %d: %v", index, err)
@@ -105,9 +142,7 @@ func GenerateBitcoinAddress(c *gin.Context) {
 		return
 	}
 
-	pathStr := "m/86'/0'/0'/" + string(rune('0'+req.CustomerID)) + "/" + string(rune('0'+req.LoanID))
-	// Use proper path string formatting
-	pathStr = formatDerivationPath(req.CustomerID, req.LoanID)
+	pathStr := formatDerivationPath(req.CustomerID, req.LoanID)
 
 	log.Printf("Generated Taproot address for customer %d, loan %d: %s (internal key: %x)",
 		req.CustomerID, req.LoanID, address.EncodeAddress(), internalKey)
