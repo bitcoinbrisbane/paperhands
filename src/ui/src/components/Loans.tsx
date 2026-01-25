@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
-import { Container, Card, Nav, Button, Form, Row, Col, InputGroup, Modal, Spinner } from "react-bootstrap";
+import {
+  Container,
+  Card,
+  Nav,
+  Button,
+  Form,
+  Row,
+  Col,
+  InputGroup,
+  Modal,
+  Spinner,
+} from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
-import api from "../services/api";
 import api2 from "../services/api2";
 import { useBtcPrice } from "../hooks/useBtcPrice";
 import { LoanApplicationModal } from "./loans/LoanApplicationModal";
@@ -25,7 +35,7 @@ export function Loans() {
 
   const { price: btcPrice, loading: priceLoading } = useBtcPrice();
 
-  const collateral = btcPrice ? (loanAmount / LTV_RATIO) / btcPrice : 0;
+  const collateral = btcPrice ? loanAmount / LTV_RATIO / btcPrice : 0;
 
   useEffect(() => {
     fetchLoans();
@@ -34,7 +44,9 @@ export function Loans() {
   const fetchLoans = async () => {
     setLoansLoading(true);
     try {
-      const response = await api2.get(`/loans?customerId=1&status=${activeTab}`);
+      const response = await api2.get(
+        `/loans?customerId=1&status=${activeTab}`,
+      );
       setLoans(response.data);
     } catch (err) {
       console.error("Error fetching loans:", err);
@@ -48,7 +60,7 @@ export function Loans() {
     setError(null);
     setSelectedLoan(loan);
     try {
-      const response = await api.post("/bitcoin/address", {
+      const response = await api2.post("/bitcoin/address", {
         customerId: loan.customerId,
         loanId: loan.id,
       });
@@ -72,23 +84,34 @@ export function Loans() {
           </div>
           <h4 className="mb-0">BTC-backed loans</h4>
         </div>
-        <Button variant="dark" onClick={() => setShowApplicationModal(true)}>Apply for a loan</Button>
+        <Button variant="dark" onClick={() => setShowApplicationModal(true)}>
+          Apply for a loan
+        </Button>
       </div>
 
       {/* Tabs */}
       <Nav variant="tabs" className="mb-4">
         <Nav.Item>
-          <Nav.Link active={activeTab === "pending"} onClick={() => setActiveTab("pending")}>
+          <Nav.Link
+            active={activeTab === "pending"}
+            onClick={() => setActiveTab("pending")}
+          >
             Pending
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link active={activeTab === "active"} onClick={() => setActiveTab("active")}>
+          <Nav.Link
+            active={activeTab === "active"}
+            onClick={() => setActiveTab("active")}
+          >
             Active
           </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link active={activeTab === "inactive"} onClick={() => setActiveTab("inactive")}>
+          <Nav.Link
+            active={activeTab === "inactive"}
+            onClick={() => setActiveTab("inactive")}
+          >
             Inactive
           </Nav.Link>
         </Nav.Item>
@@ -96,7 +119,11 @@ export function Loans() {
 
       {/* Loans List */}
       <div className="mb-4">
-        <LoanList loans={loans} loading={loansLoading} onDepositClick={handleDeposit} />
+        <LoanList
+          loans={loans}
+          loading={loansLoading}
+          onDepositClick={handleDeposit}
+        />
       </div>
 
       {/* Promo */}
@@ -119,7 +146,8 @@ export function Loans() {
         <Card.Body>
           <h5 className="mb-3">Loan calculator</h5>
           <p className="text-muted mb-4">
-            BTC-backed loans have a 12-month term and are denominated in Australian dollars.
+            BTC-backed loans have a variable term and are denominated in
+            Australian dollars.
           </p>
           <Row>
             <Col md={6}>
@@ -135,9 +163,13 @@ export function Loans() {
                 </InputGroup>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Collateral</Form.Label>
+                <Form.Label>Collateral required</Form.Label>
                 <InputGroup>
-                  <Form.Control type="text" value={collateral.toFixed(8)} readOnly />
+                  <Form.Control
+                    type="text"
+                    value={collateral.toFixed(8)}
+                    readOnly
+                  />
                   <InputGroup.Text>BTC</InputGroup.Text>
                 </InputGroup>
               </Form.Group>
@@ -158,9 +190,13 @@ export function Loans() {
                   <div className="h4">{loanAmount.toFixed(2)} AUD</div>
                 </div>
                 <div className="mb-3">
-                  <div className="text-muted small">Collateral</div>
+                  <div className="text-muted small">Collateral required</div>
                   <div className="h4">
-                    {priceLoading ? <Spinner size="sm" /> : `${collateral.toFixed(8)} BTC`}
+                    {priceLoading ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      `${collateral.toFixed(8)} BTC`
+                    )}
                   </div>
                 </div>
                 <div className="mb-3">
@@ -170,7 +206,13 @@ export function Loans() {
                 <div>
                   <div className="text-muted small">BTC/AUD Rate</div>
                   <div className="h5">
-                    {priceLoading ? <Spinner size="sm" /> : btcPrice ? `$${btcPrice.toLocaleString()} AUD` : 'Price unavailable'}
+                    {priceLoading ? (
+                      <Spinner size="sm" />
+                    ) : btcPrice ? (
+                      `$${btcPrice.toLocaleString()} AUD`
+                    ) : (
+                      "Price unavailable"
+                    )}
                   </div>
                 </div>
               </div>
@@ -191,7 +233,11 @@ export function Loans() {
       />
 
       {/* Deposit Modal */}
-      <Modal show={showDepositModal} onHide={() => setShowDepositModal(false)} centered>
+      <Modal
+        show={showDepositModal}
+        onHide={() => setShowDepositModal(false)}
+        centered
+      >
         <Modal.Header closeButton>
           <Modal.Title>Deposit BTC</Modal.Title>
         </Modal.Header>
@@ -205,7 +251,8 @@ export function Loans() {
                 </p>
               </div>
               <p className="text-muted mb-3">
-                Send {selectedLoan.collateralBtc.toFixed(8)} BTC to the following address:
+                Send {selectedLoan.collateralBtc.toFixed(8)} BTC to the
+                following address:
               </p>
             </>
           )}
@@ -225,12 +272,16 @@ export function Loans() {
           </div>
           <div className="alert alert-info mt-3 mb-0 text-start">
             <small>
-              <strong>Note:</strong> Once you deposit the BTC, your loan will be processed and funds will be transferred to your account.
+              <strong>Note:</strong> Once you deposit the BTC, your loan will be
+              processed and funds will be transferred to your account.
             </small>
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDepositModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => setShowDepositModal(false)}
+          >
             Close
           </Button>
         </Modal.Footer>

@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Modal, Button, Form, Row, Col, InputGroup, Spinner, Alert } from "react-bootstrap";
+import { QRCodeSVG } from "qrcode.react";
 import { useBtcPrice } from "../../hooks/useBtcPrice";
 import api2 from "../../services/api2";
 
-const LTV_RATIO = 0.5;
 const MIN_TERM_DAYS = 30;
 const MAX_TERM_DAYS = 1825; // 5 years
+const DEPOSIT_TIMEOUT_SECONDS = 15 * 60; // 15 minutes
+const MIN_LVR = 40;
+const MAX_LVR = 80;
+const DEFAULT_LVR = 50;
 
 interface LoanApplicationModalProps {
   show: boolean;
@@ -16,13 +20,18 @@ interface LoanApplicationModalProps {
 export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicationModalProps) {
   const [loanAmount, setLoanAmount] = useState(5000);
   const [termDays, setTermDays] = useState(365);
+  const [lvr, setLvr] = useState(DEFAULT_LVR);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+
+  // Two-step flow state
+  const [step, setStep] = useState<'form' | 'deposit'>('form');
+  const [depositAddress, setDepositAddress] = useState<string | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState(DEPOSIT_TIMEOUT_SECONDS);
 
   const { price: btcPrice, loading: priceLoading } = useBtcPrice();
 
-  const collateralBtc = btcPrice ? (loanAmount / LTV_RATIO) / btcPrice : 0;
+  const collateralBtc = btcPrice ? (loanAmount / (lvr / 100)) / btcPrice : 0;
 
   const formatTermLabel = (days: number): string => {
     if (days < 365) {
@@ -33,34 +42,72 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
     return `${years} year${years !== '1.0' ? 's' : ''}`;
   };
 
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleClose = useCallback(() => {
+    if (!loading) {
+      setStep('form');
+      setDepositAddress(null);
+      setTimeRemaining(DEPOSIT_TIMEOUT_SECONDS);
+      setError(null);
+      setLoanAmount(5000);
+      setTermDays(365);
+      setLvr(DEFAULT_LVR);
+      onHide();
+    }
+  }, [loading, onHide]);
+
+  // Countdown timer effect - auto-close when expired
+  useEffect(() => {
+    if (step !== 'deposit') return;
+
+    if (timeRemaining <= 0) {
+      onSuccess?.();
+      handleClose();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeRemaining(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [step, timeRemaining, handleClose, onSuccess]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(false);
 
     try {
       if (!btcPrice) {
         throw new Error("BTC price not available");
       }
 
-      const response = await api2.post("/loans", {
+      // Step 1: Create loan via Go API
+      const loanResponse = await api2.post("/loans", {
         customerId: 1, // TODO: Get from auth context
         amountAud: loanAmount,
         collateralBtc: collateralBtc,
         btcPriceAtCreation: btcPrice,
       });
 
-      console.log("Loan application created:", response.data);
-      setSuccess(true);
+      const newLoanId = loanResponse.data.id;
+      console.log("Loan application created:", loanResponse.data);
 
-      setTimeout(() => {
-        onSuccess?.();
-        onHide();
-        setSuccess(false);
-        setLoanAmount(5000);
-        setTermDays(365);
-      }, 2000);
+      // Step 2: Generate BTC address via Go API
+      const addressResponse = await api2.post("/bitcoin/address", {
+        customerId: 1, // TODO: Get from auth context
+        loanId: newLoanId,
+      });
+
+      setDepositAddress(addressResponse.data.address);
+      setStep('deposit');
+      setTimeRemaining(DEPOSIT_TIMEOUT_SECONDS);
     } catch (err) {
       console.error("Error creating loan application:", err);
       setError("Failed to submit loan application. Please try again.");
@@ -69,14 +116,61 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
     }
   };
 
-  const handleClose = () => {
-    if (!loading) {
-      setError(null);
-      setSuccess(false);
-      onHide();
-    }
-  };
+  // Render deposit step
+  if (step === 'deposit') {
+    return (
+      <Modal show={show} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Deposit Collateral</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="text-center">
+          {/* Timer */}
+          <div className={`mb-3 ${timeRemaining < 120 ? 'text-danger' : 'text-muted'}`}>
+            <strong>Time remaining: {formatTime(timeRemaining)}</strong>
+          </div>
 
+          {/* QR Code */}
+          {depositAddress && (
+            <div className="mb-3">
+              <QRCodeSVG
+                value={`bitcoin:${depositAddress}?amount=${collateralBtc.toFixed(8)}`}
+                size={200}
+                level="M"
+              />
+            </div>
+          )}
+
+          {/* Amount */}
+          <div className="mb-3">
+            <div className="text-muted small">Amount to send</div>
+            <div className="h4">{collateralBtc.toFixed(8)} BTC</div>
+          </div>
+
+          {/* Address */}
+          <div className="bg-light p-3 rounded mb-3">
+            <code className="text-break" style={{ fontSize: "0.85rem" }}>
+              {depositAddress}
+            </code>
+          </div>
+
+          {/* Warning */}
+          <Alert variant="warning" className="text-start">
+            <small>
+              <strong>Important:</strong> Only send BTC on the Bitcoin network to this address.
+              Sending other assets or using a different network will result in permanent loss of funds.
+            </small>
+          </Alert>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    );
+  }
+
+  // Render form step
   return (
     <Modal show={show} onHide={handleClose} centered size="lg">
       <Modal.Header closeButton>
@@ -85,7 +179,6 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
           {error && <Alert variant="danger">{error}</Alert>}
-          {success && <Alert variant="success">Loan application submitted successfully!</Alert>}
 
           <Row className="mb-4">
             <Col md={6}>
@@ -126,6 +219,24 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
               </Form.Group>
 
               <Form.Group className="mb-3">
+                <Form.Label>
+                  LVR (Loan-to-Value Ratio): <strong>{lvr}%</strong>
+                </Form.Label>
+                <Form.Range
+                  value={lvr}
+                  onChange={(e) => setLvr(Number(e.target.value))}
+                  min={MIN_LVR}
+                  max={MAX_LVR}
+                  step={5}
+                  disabled={loading}
+                />
+                <div className="d-flex justify-content-between text-muted small">
+                  <span>{MIN_LVR}%</span>
+                  <span>{MAX_LVR}%</span>
+                </div>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
                 <Form.Label>Required Collateral (BTC)</Form.Label>
                 <InputGroup>
                   <Form.Control
@@ -136,7 +247,7 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
                   <InputGroup.Text>BTC</InputGroup.Text>
                 </InputGroup>
                 <Form.Text className="text-muted">
-                  Based on 50% loan-to-value ratio
+                  Based on {lvr}% loan-to-value ratio
                 </Form.Text>
               </Form.Group>
             </Col>
@@ -151,8 +262,18 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
                 </div>
 
                 <div className="mb-3">
+                  <div className="text-muted small">Interest Rate</div>
+                  <div className="h5 mb-0">11.90% APR</div>
+                </div>
+
+                <div className="mb-3">
                   <div className="text-muted small">Loan Term</div>
                   <div className="h5 mb-0">{formatTermLabel(termDays)}</div>
+                </div>
+
+                <div className="mb-3">
+                  <div className="text-muted small">LVR</div>
+                  <div className="h5 mb-0">{lvr}%</div>
                 </div>
 
                 <div className="mb-3">

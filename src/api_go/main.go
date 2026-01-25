@@ -90,6 +90,13 @@ func main() {
 		capital.GET("/deposit-addresses", handlers.GetDepositAddresses)
 	}
 
+	// Bitcoin routes (protected by JWT authentication)
+	bitcoin := r.Group("/bitcoin")
+	bitcoin.Use(middleware.AuthRequired())
+	{
+		bitcoin.POST("/address", handlers.GenerateBitcoinAddress)
+	}
+
 	// Get port from environment or use default
 	port := os.Getenv("PORT")
 	if port == "" {

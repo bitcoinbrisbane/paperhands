@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Container, Card, Row, Col, Button, Modal, Spinner, Table, Badge } from "react-bootstrap";
 import { QRCodeSVG } from "qrcode.react";
 import api from "../services/api";
+import api2 from "../services/api2";
 
 interface Transaction {
   txid: string;
@@ -58,7 +59,7 @@ export function Transactions() {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.post("/bitcoin/address", {
+      const response = await api2.post("/bitcoin/address", {
         customerId: 1,
         loanId: 0,
       });
@@ -76,7 +77,7 @@ export function Transactions() {
   useEffect(() => {
     const init = async () => {
       try {
-        const response = await api.post("/bitcoin/address", {
+        const response = await api2.post("/bitcoin/address", {
           customerId: 1,
           loanId: 0,
         });
