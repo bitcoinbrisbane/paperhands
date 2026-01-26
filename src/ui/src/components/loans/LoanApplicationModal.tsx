@@ -239,6 +239,19 @@ export function LoanApplicationModal({ show, onHide, onSuccess }: LoanApplicatio
               </Form.Group>
 
               <Form.Group className="mb-3">
+                <Form.Label>Available Collateral (BTC)</Form.Label>
+                <InputGroup>
+                  <Form.Control
+                    type="text"
+                    value="12.45678901"
+                    readOnly
+                    className="bg-light"
+                  />
+                  <InputGroup.Text>BTC</InputGroup.Text>
+                </InputGroup>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
                 <Form.Label>Required Collateral (BTC)</Form.Label>
                 <InputGroup>
                   <Form.Control

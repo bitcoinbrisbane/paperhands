@@ -35,7 +35,6 @@ interface DepositAddress {
 }
 
 export function Capital() {
-  const userId = useUserId();
   const [selectedToken, setSelectedToken] = useState<Token>("AAUD");
   const [amount, setAmount] = useState("");
   const [walletConnected, setWalletConnected] = useState(false);
@@ -57,6 +56,8 @@ export function Capital() {
   const fetchSupplies = async () => {
     try {
       setLoading(true);
+      // TODO: Get actual user ID from auth context
+      const userId = 1; // Temporary: using test user ID
       const response = await api2.get<CapitalSupply[]>(
         `/capital?userId=${userId}`,
       );
@@ -114,6 +115,9 @@ export function Capital() {
       // For now, we'll create a mock transaction hash
       const mockTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
 
+      // TODO: Get actual user ID from auth context
+      const userId = 1; // Temporary: using test user ID
+
       await api2.post("/capital", {
         userId,
         token: selectedToken,
@@ -141,6 +145,9 @@ export function Capital() {
 
     try {
       setGeneratingAddress(true);
+
+      // TODO: Get actual user ID from auth context
+      const userId = 1; // Temporary: using test user ID
 
       const response = await api2.post<DepositAddress>(
         "/capital/deposit-address",
@@ -212,9 +219,7 @@ export function Capital() {
                 <>
                   <Alert variant="info" className="mb-3">
                     <small>
-                      <strong>Connected:</strong>{" "}
-                      {walletAddress.substring(0, 6)}...
-                      {walletAddress.substring(walletAddress.length - 4)}
+                      <strong>Connected:</strong> {walletAddress}
                     </small>
                   </Alert>
 
